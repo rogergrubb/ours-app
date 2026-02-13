@@ -21,6 +21,7 @@ const LoggedInHome = lazy(() => import('./pages/ours-logged-in-home'))
 const SiteArchitecture = lazy(() => import('./pages/ours-site-architecture'))
 const MvpBlueprint = lazy(() => import('./pages/ours-mvp-v2'))
 const FullApp = lazy(() => import('./pages/ours-app'))
+const Complete = lazy(() => import('./pages/ours-complete'))
 
 const Loading = () => (
   <div style={{
@@ -51,6 +52,7 @@ const Directory = () => {
       { path: '/hours', name: 'HOURS Economy', desc: 'Earning, spending, tiers, revenue sharing, simulator', icon: '⏣', lines: '990', status: 'complete' },
     ]},
     { section: 'ZONES & NAVIGATION', items: [
+      { path: '/complete', name: '🆕 Complete Candy Store', desc: 'V3: All 8 zones deep + waitlist + onboarding', icon: '🍬', lines: '2,050', status: 'complete' },
       { path: '/candy-store', name: 'Candy Store Home', desc: 'Zone-based logged-in experience', icon: '🍬', lines: '600+', status: 'complete' },
       { path: '/logged-in-home', name: 'Logged-In Home', desc: 'Dashboard after authentication', icon: '🏡', lines: '686', status: 'complete' },
       { path: '/watch', name: 'Watch Zone', desc: 'Video content zone', icon: '🎬', lines: '154', status: 'prototype' },
@@ -206,6 +208,7 @@ const App = () => {
         <Route path="/architecture" element={<SiteArchitecture />} />
         <Route path="/blueprint" element={<MvpBlueprint />} />
         <Route path="/full-app" element={<FullApp />} />
+        <Route path="/complete" element={<Complete />} />
         <Route path="*" element={<Directory />} />
       </Routes>
     </Suspense>
