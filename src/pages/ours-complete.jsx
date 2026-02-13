@@ -199,11 +199,45 @@ const OursCandyStore = () => {
     ];
     const feat = features[landingFeature];
 
+    // Live activity items that scroll
+    const liveActivity = [
+      { user: '🎨 Luna', action: 'earned +3.2 HRS', detail: 'watching tutorials', color: T.purple },
+      { user: '🔧 Marcus', action: 'sold a course', detail: 'for 120 HRS', color: T.pink },
+      { user: '📈 Priya', action: 'voted YES', detail: 'on lower fees', color: T.accent },
+      { user: '🎬 Kai', action: 'earned +8.1 HRS', detail: 'streaming live', color: T.primary },
+      { user: '🚀 Sofia', action: 'won 250 HRS', detail: 'Design Sprint Challenge', color: T.gold },
+      { user: '🧠 Alex', action: 'tipped 10 HRS', detail: 'to @CreatorJay', color: T.cyan },
+      { user: '🎙️ Theo', action: 'earned +1.4 HRS', detail: 'hosting a room', color: T.orange },
+      { user: '📰 Mia', action: 'published article', detail: 'got 89 reactions', color: T.accent },
+      { user: '🛍️ Jake', action: 'cashout $47.20', detail: 'to PayPal', color: T.gold },
+      { user: '🏛️ Rina', action: 'founded a group', detail: '142 members in 2 days', color: T.accent },
+      { user: '🎨 Luna', action: 'earned +3.2 HRS', detail: 'watching tutorials', color: T.purple },
+      { user: '🔧 Marcus', action: 'sold a course', detail: 'for 120 HRS', color: T.pink },
+      { user: '📈 Priya', action: 'voted YES', detail: 'on lower fees', color: T.accent },
+      { user: '🎬 Kai', action: 'earned +8.1 HRS', detail: 'streaming live', color: T.primary },
+      { user: '🚀 Sofia', action: 'won 250 HRS', detail: 'Design Sprint Challenge', color: T.gold },
+      { user: '🧠 Alex', action: 'tipped 10 HRS', detail: 'to @CreatorJay', color: T.cyan },
+      { user: '🎙️ Theo', action: 'earned +1.4 HRS', detail: 'hosting a room', color: T.orange },
+      { user: '📰 Mia', action: 'published article', detail: 'got 89 reactions', color: T.accent },
+      { user: '🛍️ Jake', action: 'cashout $47.20', detail: 'to PayPal', color: T.gold },
+      { user: '🏛️ Rina', action: 'founded a group', detail: '142 members in 2 days', color: T.accent },
+    ];
+
+    // Mock phone feed content
+    const phoneFeed = [
+      { type: 'video', creator: '🎬 TechVault', title: 'How I Made $400 This Week on OURS', views: '14.2K', earnings: '+3.7', color: T.purple },
+      { type: 'earning', amount: '+0.3 HRS', label: 'Just now — watching earned you HOURS' },
+      { type: 'article', creator: '📰 DataMind', title: 'The Creator Economy is Broken. We Fixed It.', reactions: '234', earnings: '+0.8', color: T.cyan },
+      { type: 'challenge', title: '🏆 60-Second Video Challenge', prize: '500 HRS', entries: '342 entries', color: T.gold },
+      { type: 'shop', creator: '🛍️ TemplateKing', title: 'Premium Dashboard UI Kit', price: '45 HRS', sales: '89 sold', color: T.pink },
+      { type: 'live', creator: '🎙️ Morning Market Brief', listeners: '342 listening', color: T.orange },
+    ];
+
     return (
       <div style={{
         position: 'fixed', inset: 0, background: T.bg,
         display: 'flex', flexDirection: 'column', fontFamily: T.font,
-        overflow: 'hidden',
+        overflowY: 'auto', overflowX: 'hidden',
       }}>
         <style>{`
           @keyframes logoGlow { 0%,100% { text-shadow: 0 0 20px #0ea5e940; } 50% { text-shadow: 0 0 60px #0ea5e980, 0 0 120px #0ea5e940; } }
@@ -216,79 +250,390 @@ const OursCandyStore = () => {
           @keyframes gradientShift { 0% { background-position: 0% 50%; } 50% { background-position: 100% 50%; } 100% { background-position: 0% 50%; } }
           @keyframes marquee { from { transform: translateX(0); } to { transform: translateX(-50%); } }
           @keyframes spin { to { transform: rotate(360deg); } }
-          @keyframes ripple { 0% { transform: scale(1); opacity: 0.4; } 100% { transform: scale(2.5); opacity: 0; } }
-          @keyframes featureFade { 0% { opacity: 0; transform: translateY(10px); } 15% { opacity: 1; transform: translateY(0); } 85% { opacity: 1; transform: translateY(0); } 100% { opacity: 0; transform: translateY(-10px); } }
+          @keyframes scrollFeed { from { transform: translateY(0); } to { transform: translateY(-50%); } }
+          @keyframes tickerScroll { from { transform: translateX(0); } to { transform: translateX(-50%); } }
+          @keyframes notifPop { 0% { opacity: 0; transform: translateY(-8px) scale(0.95); } 20% { opacity: 1; transform: translateY(0) scale(1); } 80% { opacity: 1; transform: translateY(0) scale(1); } 100% { opacity: 0; transform: translateY(4px) scale(0.98); } }
+          @keyframes earningPulse { 0% { background: rgba(251,191,36,0); } 50% { background: rgba(251,191,36,0.08); } 100% { background: rgba(251,191,36,0); } }
+          @keyframes countUp { from { opacity: 0; transform: translateY(6px); } to { opacity: 1; transform: translateY(0); } }
           * { box-sizing: border-box; margin: 0; padding: 0; }
           input::placeholder { color: #4a5b7a; }
+          ::-webkit-scrollbar { display: none; }
         `}</style>
 
-        {/* Ambient background glow */}
+        {/* ═══ LIVE ACTIVITY TICKER — The "Party is Happening" Bar ═══ */}
         <div style={{
-          position: 'absolute', top: -100, left: '50%', transform: 'translateX(-50%)',
-          width: 500, height: 500, borderRadius: '50%',
-          background: `radial-gradient(circle, ${T.primary}12 0%, transparent 70%)`,
-          filter: 'blur(60px)', pointerEvents: 'none',
-        }} />
-        <div style={{
-          position: 'absolute', bottom: -150, right: -100,
-          width: 400, height: 400, borderRadius: '50%',
-          background: `radial-gradient(circle, ${T.accent}10 0%, transparent 70%)`,
-          filter: 'blur(80px)', pointerEvents: 'none',
-        }} />
+          width: '100%', background: `${T.surface}ee`, borderBottom: `1px solid ${T.border}`,
+          overflow: 'hidden', padding: '8px 0', position: 'relative', flexShrink: 0,
+          backdropFilter: 'blur(8px)',
+        }}>
+          <div style={{ display: 'flex', alignItems: 'center', gap: 4, marginBottom: 4, padding: '0 16px' }}>
+            <span style={{ width: 6, height: 6, borderRadius: '50%', background: '#22c55e', boxShadow: '0 0 8px #22c55e', animation: 'pulse 1.5s infinite' }} />
+            <span style={{ fontSize: 10, fontWeight: 700, color: T.accent, letterSpacing: 1 }}>LIVE</span>
+            <span style={{ fontSize: 10, color: T.dim }}>— 14,247 people earning right now</span>
+          </div>
+          <div style={{ overflow: 'hidden', width: '100%' }}>
+            <div style={{
+              display: 'flex', gap: 24, whiteSpace: 'nowrap',
+              animation: 'tickerScroll 45s linear infinite',
+              width: 'max-content',
+            }}>
+              {liveActivity.map((item, i) => (
+                <span key={i} style={{ fontSize: 11, color: T.sub, display: 'inline-flex', alignItems: 'center', gap: 5 }}>
+                  <span>{item.user}</span>
+                  <span style={{ color: item.color, fontWeight: 600 }}>{item.action}</span>
+                  <span style={{ color: T.dim }}>{item.detail}</span>
+                  <span style={{ color: T.dim, opacity: 0.3 }}>•</span>
+                </span>
+              ))}
+            </div>
+          </div>
+        </div>
 
-        {/* Content */}
+        {/* ═══ MAIN CONTENT ═══ */}
         <div style={{
           flex: 1, display: 'flex', flexDirection: 'column', alignItems: 'center',
-          justifyContent: 'center', padding: '24px 24px 40px', position: 'relative',
-          maxWidth: 480, margin: '0 auto', width: '100%',
+          padding: '20px 20px 40px', position: 'relative',
+          maxWidth: 520, margin: '0 auto', width: '100%',
         }}>
-          {/* Tagline above logo */}
-          <div style={{
-            fontSize: 11, color: T.dim, letterSpacing: 4, textTransform: 'uppercase',
-            marginBottom: 16, animation: 'fadeIn 1s ease 0.2s both',
-          }}>The platform that pays you back</div>
 
-          {/* Logo */}
+          {/* Ambient glows */}
           <div style={{
-            fontSize: 64, fontWeight: 900, letterSpacing: -3, marginBottom: 8,
+            position: 'absolute', top: -100, left: '50%', transform: 'translateX(-50%)',
+            width: 500, height: 500, borderRadius: '50%',
+            background: `radial-gradient(circle, ${T.primary}12 0%, transparent 70%)`,
+            filter: 'blur(60px)', pointerEvents: 'none',
+          }} />
+
+          {/* ═══ HERO: Logo + Tagline (Compact) ═══ */}
+          <div style={{
+            fontSize: 52, fontWeight: 900, letterSpacing: -3, marginBottom: 4, marginTop: 8,
             background: `linear-gradient(135deg, ${T.primary}, ${T.accent}, ${T.gold}, ${T.primary})`,
             backgroundSize: '300% 300%', animation: 'gradientShift 6s ease infinite',
             WebkitBackgroundClip: 'text', WebkitTextFillColor: 'transparent',
           }}>OURS</div>
-
           <div style={{
-            fontSize: 16, color: T.sub, marginBottom: 8,
-            animation: 'fadeIn 1s ease 0.4s both', textAlign: 'center',
-          }}>It's Ours. Not Theirs.</div>
+            fontSize: 14, color: T.sub, marginBottom: 20, textAlign: 'center',
+            animation: 'fadeIn 0.8s ease 0.2s both',
+          }}>The social platform where <span style={{ color: T.gold, fontWeight: 700 }}>your attention pays you</span></div>
 
+          {/* ═══ THE PHONE — The Window Into the Party ═══ */}
           <div style={{
-            fontSize: 13, color: T.dim, textAlign: 'center', lineHeight: 1.6,
-            maxWidth: 320, marginBottom: 32,
-            animation: 'fadeIn 1s ease 0.6s both',
+            width: 280, position: 'relative', marginBottom: 24,
+            animation: 'slideUp 0.8s ease 0.4s both',
           }}>
-            A social platform where your attention has real value. Watch, create, shop, vote — every action earns <span style={{ color: T.gold, fontWeight: 700 }}>HOURS</span> tokens you can cash out.
+            {/* Phone frame */}
+            <div style={{
+              width: 280, borderRadius: 32, overflow: 'hidden',
+              border: `2px solid ${T.border}`, background: T.bg,
+              boxShadow: `0 0 60px ${T.primary}15, 0 20px 60px rgba(0,0,0,0.5)`,
+              position: 'relative',
+            }}>
+              {/* Phone status bar */}
+              <div style={{
+                display: 'flex', justifyContent: 'space-between', alignItems: 'center',
+                padding: '10px 20px 6px', background: T.surface,
+              }}>
+                <span style={{ fontSize: 10, fontWeight: 600, color: T.sub }}>9:41</span>
+                <div style={{
+                  width: 60, height: 4, borderRadius: 2, background: T.dim,
+                }} />
+                <div style={{ display: 'flex', gap: 3, alignItems: 'center' }}>
+                  <span style={{ fontSize: 8, color: T.sub }}>5G</span>
+                  <span style={{ fontSize: 10, color: T.sub }}>🔋</span>
+                </div>
+              </div>
+
+              {/* Phone top bar — OURS header */}
+              <div style={{
+                display: 'flex', justifyContent: 'space-between', alignItems: 'center',
+                padding: '8px 16px 10px', background: T.surface,
+                borderBottom: `1px solid ${T.border}`,
+              }}>
+                <div style={{ display: 'flex', alignItems: 'center', gap: 6 }}>
+                  <span style={{
+                    fontSize: 16, fontWeight: 900,
+                    background: `linear-gradient(135deg, ${T.primary}, ${T.accent})`,
+                    WebkitBackgroundClip: 'text', WebkitTextFillColor: 'transparent',
+                  }}>OURS</span>
+                  <span style={{ width: 5, height: 5, borderRadius: '50%', background: '#22c55e', boxShadow: '0 0 4px #22c55e' }} />
+                </div>
+                <div style={{
+                  padding: '3px 8px', borderRadius: 8, background: `${T.gold}15`,
+                  display: 'flex', alignItems: 'center', gap: 3,
+                  animation: 'earningPulse 3s ease infinite',
+                }}>
+                  <span style={{ fontSize: 10, color: T.gold, fontWeight: 700, fontFamily: T.mono }}>142.5</span>
+                  <span style={{ fontSize: 8, color: T.gold, opacity: 0.7 }}>HRS</span>
+                </div>
+              </div>
+
+              {/* Phone feed — THE LIFE, auto-scrolling content */}
+              <div style={{
+                height: 320, overflow: 'hidden', position: 'relative',
+                background: T.bg,
+              }}>
+                {/* Gradient fade at top */}
+                <div style={{
+                  position: 'absolute', top: 0, left: 0, right: 0, height: 30,
+                  background: `linear-gradient(to bottom, ${T.bg}, transparent)`,
+                  zIndex: 2, pointerEvents: 'none',
+                }} />
+                {/* Gradient fade at bottom */}
+                <div style={{
+                  position: 'absolute', bottom: 0, left: 0, right: 0, height: 40,
+                  background: `linear-gradient(to top, ${T.bg}, transparent)`,
+                  zIndex: 2, pointerEvents: 'none',
+                }} />
+
+                {/* Scrolling content */}
+                <div style={{
+                  animation: 'scrollFeed 20s linear infinite',
+                  padding: '8px 12px',
+                }}>
+                  {[...phoneFeed, ...phoneFeed].map((item, i) => {
+                    if (item.type === 'video') return (
+                      <div key={i} style={{
+                        marginBottom: 10, borderRadius: 12, overflow: 'hidden',
+                        border: `1px solid ${T.border}`,
+                      }}>
+                        <div style={{
+                          height: 100, background: `linear-gradient(135deg, ${item.color}30, ${item.color}10)`,
+                          display: 'flex', alignItems: 'center', justifyContent: 'center',
+                          position: 'relative',
+                        }}>
+                          <div style={{
+                            width: 36, height: 36, borderRadius: '50%', background: 'rgba(255,255,255,0.2)',
+                            display: 'flex', alignItems: 'center', justifyContent: 'center',
+                            backdropFilter: 'blur(4px)',
+                          }}>▶</div>
+                          <span style={{
+                            position: 'absolute', top: 6, right: 6, fontSize: 9,
+                            padding: '2px 6px', borderRadius: 4, background: 'rgba(0,0,0,0.6)',
+                            color: '#fff',
+                          }}>12:34</span>
+                          <span style={{
+                            position: 'absolute', bottom: 6, right: 6, fontSize: 9,
+                            padding: '2px 6px', borderRadius: 4,
+                            background: `${T.gold}30`, color: T.gold, fontWeight: 700,
+                          }}>+{item.earnings} HRS</span>
+                        </div>
+                        <div style={{ padding: '8px 10px', background: T.card }}>
+                          <div style={{ fontSize: 10, fontWeight: 700, color: T.text, marginBottom: 2 }}>{item.title}</div>
+                          <div style={{ fontSize: 9, color: T.dim }}>{item.creator} · {item.views} views</div>
+                        </div>
+                      </div>
+                    );
+                    if (item.type === 'earning') return (
+                      <div key={i} style={{
+                        marginBottom: 10, padding: '8px 12px', borderRadius: 10,
+                        background: `${T.gold}08`, border: `1px solid ${T.gold}20`,
+                        display: 'flex', alignItems: 'center', gap: 8,
+                        animation: 'earningPulse 2s ease infinite',
+                      }}>
+                        <span style={{ fontSize: 14 }}>💰</span>
+                        <div>
+                          <span style={{ fontSize: 11, fontWeight: 700, color: T.gold, fontFamily: T.mono }}>{item.amount}</span>
+                          <div style={{ fontSize: 8, color: T.dim }}>{item.label}</div>
+                        </div>
+                      </div>
+                    );
+                    if (item.type === 'article') return (
+                      <div key={i} style={{
+                        marginBottom: 10, padding: '10px 12px', borderRadius: 12,
+                        background: T.card, border: `1px solid ${T.border}`,
+                      }}>
+                        <div style={{ display: 'flex', alignItems: 'center', gap: 6, marginBottom: 4 }}>
+                          <span style={{ fontSize: 12 }}>{item.creator.split(' ')[0]}</span>
+                          <span style={{ fontSize: 9, color: T.sub }}>{item.creator.split(' ')[1]}</span>
+                        </div>
+                        <div style={{ fontSize: 10, fontWeight: 700, color: T.text, marginBottom: 4, lineHeight: 1.3 }}>{item.title}</div>
+                        <div style={{ display: 'flex', gap: 8, alignItems: 'center' }}>
+                          <span style={{ fontSize: 8, color: T.sub }}>❤️ {item.reactions}</span>
+                          <span style={{ fontSize: 8, color: T.gold, fontWeight: 700 }}>+{item.earnings} HRS</span>
+                        </div>
+                      </div>
+                    );
+                    if (item.type === 'challenge') return (
+                      <div key={i} style={{
+                        marginBottom: 10, padding: '10px 12px', borderRadius: 12,
+                        background: `linear-gradient(135deg, ${item.color}12, ${item.color}05)`,
+                        border: `1px solid ${item.color}25`,
+                      }}>
+                        <div style={{ fontSize: 10, fontWeight: 800, color: T.text, marginBottom: 3 }}>{item.title}</div>
+                        <div style={{ display: 'flex', gap: 8, alignItems: 'center' }}>
+                          <span style={{ fontSize: 9, color: T.gold, fontWeight: 700 }}>🏆 {item.prize}</span>
+                          <span style={{ fontSize: 8, color: T.dim }}>{item.entries}</span>
+                        </div>
+                      </div>
+                    );
+                    if (item.type === 'shop') return (
+                      <div key={i} style={{
+                        marginBottom: 10, borderRadius: 12, overflow: 'hidden',
+                        border: `1px solid ${T.border}`,
+                      }}>
+                        <div style={{
+                          height: 60, background: `linear-gradient(135deg, ${item.color}20, ${item.color}08)`,
+                          display: 'flex', alignItems: 'center', justifyContent: 'center',
+                          fontSize: 24,
+                        }}>🛍️</div>
+                        <div style={{ padding: '8px 10px', background: T.card }}>
+                          <div style={{ fontSize: 10, fontWeight: 700, color: T.text }}>{item.title}</div>
+                          <div style={{ display: 'flex', justifyContent: 'space-between', marginTop: 3 }}>
+                            <span style={{ fontSize: 9, color: T.dim }}>{item.creator}</span>
+                            <span style={{ fontSize: 9, color: T.gold, fontWeight: 700 }}>{item.price}</span>
+                          </div>
+                        </div>
+                      </div>
+                    );
+                    if (item.type === 'live') return (
+                      <div key={i} style={{
+                        marginBottom: 10, padding: '10px 12px', borderRadius: 12,
+                        background: `${item.color}10`, border: `1px solid ${item.color}20`,
+                        display: 'flex', alignItems: 'center', gap: 8,
+                      }}>
+                        <span style={{
+                          width: 6, height: 6, borderRadius: '50%', background: '#ef4444',
+                          boxShadow: '0 0 8px #ef4444', animation: 'pulse 1.5s infinite',
+                        }} />
+                        <div>
+                          <div style={{ fontSize: 10, fontWeight: 700, color: T.text }}>{item.creator}</div>
+                          <div style={{ fontSize: 8, color: item.color }}>{item.listeners}</div>
+                        </div>
+                      </div>
+                    );
+                    return null;
+                  })}
+                </div>
+              </div>
+
+              {/* Phone bottom nav */}
+              <div style={{
+                display: 'flex', justifyContent: 'space-around', alignItems: 'center',
+                padding: '8px 12px 14px', background: T.surface,
+                borderTop: `1px solid ${T.border}`,
+              }}>
+                {[
+                  { icon: '🏠', label: 'Home', active: true },
+                  { icon: '🔍', label: 'Search', active: false },
+                  { icon: '➕', label: '', active: false, create: true },
+                  { icon: '💬', label: 'Chat', active: false },
+                  { icon: '👤', label: 'You', active: false },
+                ].map((tab, i) => (
+                  <div key={i} style={{
+                    display: 'flex', flexDirection: 'column', alignItems: 'center', gap: 1,
+                  }}>
+                    {tab.create ? (
+                      <div style={{
+                        width: 28, height: 28, borderRadius: 8, display: 'flex',
+                        alignItems: 'center', justifyContent: 'center', fontSize: 14,
+                        background: `linear-gradient(135deg, ${T.primary}, ${T.accent})`,
+                        marginTop: -8, boxShadow: `0 2px 10px ${T.primary}40`,
+                      }}>{tab.icon}</div>
+                    ) : (
+                      <>
+                        <span style={{ fontSize: 14 }}>{tab.icon}</span>
+                        <span style={{ fontSize: 7, color: tab.active ? T.primary : T.dim }}>{tab.label}</span>
+                      </>
+                    )}
+                  </div>
+                ))}
+              </div>
+
+              {/* Notification toast popping in */}
+              <div style={{
+                position: 'absolute', top: 50, left: 12, right: 12,
+                padding: '8px 12px', borderRadius: 12,
+                background: `${T.surface}f0`, border: `1px solid ${T.accent}30`,
+                backdropFilter: 'blur(10px)',
+                display: 'flex', alignItems: 'center', gap: 8,
+                animation: 'notifPop 4s ease infinite',
+                zIndex: 5,
+              }}>
+                <span style={{ fontSize: 16 }}>💰</span>
+                <div>
+                  <div style={{ fontSize: 9, fontWeight: 700, color: T.text }}>You just earned +0.3 HOURS</div>
+                  <div style={{ fontSize: 8, color: T.accent }}>For watching — keep going!</div>
+                </div>
+              </div>
+            </div>
+
+            {/* Glow behind phone */}
+            <div style={{
+              position: 'absolute', top: '30%', left: '50%', transform: 'translate(-50%, -50%)',
+              width: 200, height: 200, borderRadius: '50%',
+              background: `radial-gradient(circle, ${T.primary}20 0%, transparent 70%)`,
+              filter: 'blur(40px)', zIndex: -1,
+            }} />
           </div>
 
-          {/* Rotating feature showcase */}
+          {/* ═══ THE HOOK — What Makes This Different ═══ */}
           <div style={{
-            width: '100%', padding: '16px 20px', background: `${feat.color}08`,
-            borderRadius: 16, border: `1px solid ${feat.color}20`, marginBottom: 32,
-            minHeight: 72, display: 'flex', alignItems: 'center', gap: 14,
-            animation: 'fadeIn 0.5s ease', transition: 'border-color 0.5s ease, background 0.5s ease',
+            display: 'flex', gap: 8, width: '100%', marginBottom: 20,
+            animation: 'slideUp 0.8s ease 0.6s both',
+          }}>
+            <div style={{
+              flex: 1, padding: '12px 14px', borderRadius: 14,
+              background: `${T.red}08`, border: `1px solid ${T.red}15`,
+              textAlign: 'center',
+            }}>
+              <div style={{ fontSize: 10, fontWeight: 700, color: T.red, marginBottom: 4, textDecoration: 'line-through', opacity: 0.7 }}>Other Platforms</div>
+              <div style={{ fontSize: 18, marginBottom: 2 }}>👀</div>
+              <div style={{ fontSize: 10, color: T.dim }}>They profit from</div>
+              <div style={{ fontSize: 10, color: T.dim }}>YOUR attention</div>
+            </div>
+            <div style={{
+              flex: 1, padding: '12px 14px', borderRadius: 14,
+              background: `${T.accent}08`, border: `1px solid ${T.accent}25`,
+              textAlign: 'center',
+            }}>
+              <div style={{ fontSize: 10, fontWeight: 700, color: T.accent, marginBottom: 4 }}>OURS</div>
+              <div style={{ fontSize: 18, marginBottom: 2 }}>💰</div>
+              <div style={{ fontSize: 10, color: T.text, fontWeight: 600 }}>YOU profit from</div>
+              <div style={{ fontSize: 10, color: T.gold, fontWeight: 700 }}>your attention</div>
+            </div>
+          </div>
+
+          {/* ═══ LIVE EARNING STATS — Real-Time Numbers ═══ */}
+          <div style={{
+            width: '100%', display: 'flex', gap: 6, marginBottom: 20,
+            animation: 'slideUp 0.8s ease 0.7s both',
+          }}>
+            {[
+              { label: 'Earned Today', value: '$23,847', icon: '💰', color: T.gold },
+              { label: 'Active Creators', value: '14.2K', icon: '🎨', color: T.primary },
+              { label: 'To Creators', value: '92%', icon: '💎', color: T.accent },
+            ].map((stat, i) => (
+              <div key={i} style={{
+                flex: 1, padding: '10px 8px', borderRadius: 12, textAlign: 'center',
+                background: T.card, border: `1px solid ${T.border}`,
+              }}>
+                <div style={{ fontSize: 14, marginBottom: 2 }}>{stat.icon}</div>
+                <div style={{ fontSize: 14, fontWeight: 800, color: stat.color, fontFamily: T.mono }}>{stat.value}</div>
+                <div style={{ fontSize: 8, color: T.dim }}>{stat.label}</div>
+              </div>
+            ))}
+          </div>
+
+          {/* ═══ ROTATING FEATURE ═══ */}
+          <div style={{
+            width: '100%', padding: '14px 16px', background: `${feat.color}08`,
+            borderRadius: 14, border: `1px solid ${feat.color}20`, marginBottom: 8,
+            minHeight: 60, display: 'flex', alignItems: 'center', gap: 12,
+            transition: 'border-color 0.5s ease, background 0.5s ease',
           }} key={landingFeature}>
             <div style={{
-              width: 48, height: 48, borderRadius: 14, display: 'flex',
-              alignItems: 'center', justifyContent: 'center', fontSize: 24, flexShrink: 0,
+              width: 42, height: 42, borderRadius: 12, display: 'flex',
+              alignItems: 'center', justifyContent: 'center', fontSize: 20, flexShrink: 0,
               background: `linear-gradient(135deg, ${feat.color}30, ${feat.color}10)`,
             }}>{feat.icon}</div>
             <div>
-              <div style={{ fontSize: 14, fontWeight: 700, color: T.text }}>{feat.title}</div>
-              <div style={{ fontSize: 12, color: T.sub, marginTop: 2 }}>{feat.desc}</div>
+              <div style={{ fontSize: 13, fontWeight: 700, color: T.text }}>{feat.title}</div>
+              <div style={{ fontSize: 11, color: T.sub, marginTop: 1 }}>{feat.desc}</div>
             </div>
           </div>
 
           {/* Feature dots */}
-          <div style={{ display: 'flex', gap: 6, marginBottom: 32 }}>
+          <div style={{ display: 'flex', gap: 6, marginBottom: 24 }}>
             {features.map((_, i) => (
               <div key={i} onClick={() => setLandingFeature(i)} style={{
                 width: i === landingFeature ? 20 : 6, height: 6, borderRadius: 3,
@@ -298,7 +643,7 @@ const OursCandyStore = () => {
             ))}
           </div>
 
-          {/* Waitlist Form */}
+          {/* ═══ WAITLIST FORM ═══ */}
           {waitlistStatus === 'success' ? (
             <div style={{
               width: '100%', textAlign: 'center', padding: 24,
@@ -325,10 +670,9 @@ const OursCandyStore = () => {
               </div>
             </div>
           ) : (
-            <div style={{ width: '100%', animation: 'slideUp 0.8s ease 0.8s both' }}>
-              {/* Email input + button */}
+            <div style={{ width: '100%', animation: 'slideUp 0.8s ease 0.9s both' }}>
               <div style={{
-                display: 'flex', gap: 8, width: '100%', marginBottom: 12,
+                display: 'flex', gap: 8, width: '100%', marginBottom: 10,
               }}>
                 <div style={{
                   flex: 1, display: 'flex', alignItems: 'center', gap: 8,
@@ -344,8 +688,7 @@ const OursCandyStore = () => {
                     placeholder="your@email.com"
                     style={{
                       flex: 1, background: 'none', border: 'none', outline: 'none',
-                      color: T.text, fontSize: 15, fontFamily: T.font,
-                      padding: '14px 0',
+                      color: T.text, fontSize: 15, fontFamily: T.font, padding: '14px 0',
                     }}
                   />
                 </div>
@@ -353,12 +696,11 @@ const OursCandyStore = () => {
                   onClick={submitWaitlist}
                   disabled={waitlistStatus === 'sending'}
                   style={{
-                    padding: '0 24px', borderRadius: 14, border: 'none',
-                    fontSize: 14, fontWeight: 700, cursor: waitlistStatus === 'sending' ? 'wait' : 'pointer',
+                    padding: '0 20px', borderRadius: 14, border: 'none',
+                    fontSize: 13, fontWeight: 700, cursor: waitlistStatus === 'sending' ? 'wait' : 'pointer',
                     fontFamily: T.font, whiteSpace: 'nowrap',
                     background: waitlistStatus === 'sending'
-                      ? T.dim
-                      : `linear-gradient(135deg, ${T.primary}, ${T.accent})`,
+                      ? T.dim : `linear-gradient(135deg, ${T.primary}, ${T.accent})`,
                     color: '#fff',
                     boxShadow: waitlistStatus === 'sending' ? 'none' : `0 4px 20px ${T.primary}30`,
                     transition: 'all 0.3s',
@@ -379,53 +721,39 @@ const OursCandyStore = () => {
               {/* Social proof */}
               <div style={{
                 display: 'flex', alignItems: 'center', justifyContent: 'center', gap: 8,
-                marginBottom: 20,
+                marginBottom: 12,
               }}>
                 <div style={{ display: 'flex' }}>
                   {['🧠', '🔧', '🎨', '📈', '🚀'].map((e, i) => (
                     <div key={i} style={{
-                      width: 24, height: 24, borderRadius: '50%', display: 'flex',
-                      alignItems: 'center', justifyContent: 'center', fontSize: 12,
+                      width: 22, height: 22, borderRadius: '50%', display: 'flex',
+                      alignItems: 'center', justifyContent: 'center', fontSize: 11,
                       background: T.elevated, border: `1.5px solid ${T.bg}`,
                       marginLeft: i > 0 ? -6 : 0,
                     }}>{e}</div>
                   ))}
                 </div>
-                <span style={{ fontSize: 12, color: T.sub }}>
+                <span style={{ fontSize: 11, color: T.sub }}>
                   <span style={{ color: T.primary, fontWeight: 700 }}>{waitlistCount.toLocaleString()}</span> creators already in line
                 </span>
               </div>
 
-              {/* Skip to preview */}
               <div style={{ textAlign: 'center' }}>
                 <button onClick={() => setScreen('splash')} style={{
-                  background: 'none', border: 'none', color: T.dim, fontSize: 12,
+                  background: 'none', border: 'none', color: T.dim, fontSize: 11,
                   cursor: 'pointer', fontFamily: T.font, textDecoration: 'underline',
                   textUnderlineOffset: 3,
-                }}>or preview the platform →</button>
+                }}>or preview the full platform →</button>
               </div>
             </div>
           )}
 
-          {/* Zone icons floating at bottom */}
-          <div style={{
-            display: 'flex', gap: 16, marginTop: 40,
-            animation: 'fadeIn 1.2s ease 1s both',
-          }}>
-            {['🎬', '📰', '🛍️', '🏛️', '🎙️', '✨', '🗳️', '🏆'].map((icon, i) => (
-              <div key={i} style={{
-                fontSize: 20, opacity: 0.25, animation: `float ${2 + i * 0.3}s ease-in-out infinite`,
-                animationDelay: `${i * 0.2}s`,
-              }}>{icon}</div>
-            ))}
-          </div>
-
           {/* Footer */}
           <div style={{
-            fontSize: 10, color: T.dim, marginTop: 24, textAlign: 'center',
+            fontSize: 9, color: T.dim, marginTop: 20, textAlign: 'center',
             animation: 'fadeIn 1s ease 1.2s both',
           }}>
-            No spam. We'll only email you when the doors open.
+            No spam. Just one email when the doors open.
           </div>
         </div>
       </div>
