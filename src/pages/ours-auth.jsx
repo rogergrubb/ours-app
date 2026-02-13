@@ -666,13 +666,75 @@ const OursAuth = () => {
         </AnimatedText>
 
         <AnimatedText delay={0.6} style={{ width: '100%', maxWidth: 340 }}>
-          <Button variant="gold">
+          <Button variant="gold" onClick={() => setMode('claimed')}>
             🎁 Claim Your 10 HOURS → Onboarding
           </Button>
           <p style={{ fontSize: 8, color: T.dim, fontFamily: "'DM Mono', monospace", marginTop: 12, lineHeight: 1.6 }}>
             *HOURS welcome bonus is a one-time reward. Estimated value depends on platform revenue. This is not cryptocurrency or a security. Trust score starts at 80 and adjusts based on authentic engagement.
           </p>
         </AnimatedText>
+      </div>
+    );
+  };
+
+  // ═══ CLAIMED VIEW (after clicking Claim) ═══
+  const ClaimedView = () => {
+    const [showBalance, setShowBalance] = useState(false);
+    const [step, setStep] = useState(0);
+    useEffect(() => {
+      const t1 = setTimeout(() => setStep(1), 400);
+      const t2 = setTimeout(() => setStep(2), 1200);
+      const t3 = setTimeout(() => setShowBalance(true), 2000);
+      return () => { clearTimeout(t1); clearTimeout(t2); clearTimeout(t3); };
+    }, []);
+    return (
+      <div style={{ ...screenStyle, justifyContent: 'center', alignItems: 'center', textAlign: 'center', padding: '0 30px' }}>
+        <AnimatedText delay={0}>
+          <div style={{ fontSize: 64, marginBottom: 16, animation: step >= 1 ? 'pulse 0.6s ease' : undefined }}>
+            {step < 1 ? '🎁' : step < 2 ? '✨' : '🎉'}
+          </div>
+        </AnimatedText>
+        <AnimatedText delay={0.2}>
+          <div style={{ fontSize: 28, fontWeight: 900, fontFamily: "'Outfit', sans-serif", color: T.gold, marginBottom: 8 }}>
+            {step < 2 ? 'Claiming...' : '+10.0 HOURS Claimed!'}
+          </div>
+        </AnimatedText>
+        {showBalance && (
+          <AnimatedText delay={0}>
+            <div style={{
+              padding: '20px 30px', borderRadius: 20, marginTop: 16, marginBottom: 20,
+              background: `${T.gold}10`, border: `1px solid ${T.gold}30`,
+            }}>
+              <div style={{ fontSize: 10, color: T.dim, fontFamily: "'DM Mono', monospace", marginBottom: 4 }}>YOUR BALANCE</div>
+              <div style={{ fontSize: 36, fontWeight: 900, color: T.gold, fontFamily: "'DM Mono', monospace" }}>⏣ 10.0</div>
+              <div style={{ fontSize: 11, color: T.sub, fontFamily: "'Outfit', sans-serif", marginTop: 4 }}>Welcome to OURS, you're an Observer 👁️</div>
+            </div>
+            <div style={{
+              display: 'flex', gap: 10, marginBottom: 20,
+            }}>
+              {[
+                { icon: '📱', label: 'Explore Feed', desc: 'See what creators are posting' },
+                { icon: '🎬', label: 'Watch Zone', desc: 'Videos that earn HOURS' },
+                { icon: '⏣', label: 'Earn More', desc: 'Post, like, comment to earn' },
+              ].map((item, i) => (
+                <div key={i} style={{
+                  flex: 1, padding: 12, borderRadius: 14, background: T.card,
+                  border: `1px solid ${T.border}`, textAlign: 'center',
+                }}>
+                  <div style={{ fontSize: 22, marginBottom: 4 }}>{item.icon}</div>
+                  <div style={{ fontSize: 10, fontWeight: 700, color: T.text, fontFamily: "'Outfit', sans-serif" }}>{item.label}</div>
+                  <div style={{ fontSize: 8, color: T.dim, fontFamily: "'Outfit', sans-serif", marginTop: 2 }}>{item.desc}</div>
+                </div>
+              ))}
+            </div>
+            <Button variant="primary" onClick={() => setMode('landing')}>
+              🚀 Enter OURS
+            </Button>
+            <p style={{ fontSize: 8, color: T.dim, fontFamily: "'DM Mono', monospace", marginTop: 12, lineHeight: 1.6 }}>
+              *HOURS are internal platform credits, not currency. Welcome bonus is illustrative.
+            </p>
+          </AnimatedText>
+        )}
       </div>
     );
   };
@@ -685,6 +747,7 @@ const OursAuth = () => {
     magiclink: MagicLinkView,
     verify: VerifyView,
     verified: VerifiedView,
+    claimed: ClaimedView,
   };
 
   const CurrentView = views[mode] || LandingView;
