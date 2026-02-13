@@ -179,7 +179,7 @@ const OursCandyStore = () => {
         setWaitlistStatus('success');
         setWaitlistCount(c => c + 1);
       } else { setWaitlistStatus('error'); }
-    } catch { setWaitlistStatus('error'); }
+    } catch (err) { setWaitlistStatus('error'); }
   };
 
   // Auto-cycle landing features
