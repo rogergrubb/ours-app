@@ -1,221 +1,230 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 
 const OursProfile = () => {
   const [activeTab, setActiveTab] = useState('posts');
-  const [editing, setEditing] = useState(false);
+  const [showEdit, setShowEdit] = useState(false);
+  const [showFollowers, setShowFollowers] = useState(null);
+  const [likedPosts, setLikedPosts] = useState({});
 
-  const T = { bg: '#030712', surface: '#0a1122', card: '#0f1a2e', elevated: '#152240', border: 'rgba(56,68,100,0.22)', primary: '#0ea5e9', accent: '#10b981', gold: '#fbbf24', red: '#ef4444', purple: '#a78bfa', pink: '#f472b6', orange: '#fb923c', cyan: '#22d3ee', text: '#eaf0f9', sub: '#8b9dc3', dim: '#4a5b7a' };
+  const T = { bg: '#030712', surface: '#0a1122', card: '#0f1a2e', elevated: '#152240', border: 'rgba(56,68,100,0.18)', primary: '#0ea5e9', accent: '#10b981', gold: '#fbbf24', red: '#ef4444', purple: '#a78bfa', pink: '#f472b6', orange: '#fb923c', text: '#eaf0f9', sub: '#8b9dc3', dim: '#4a5b7a' };
+  const f = (fam = 'body') => ({ body: "'Outfit', sans-serif", mono: "'DM Mono', monospace", display: "'Playfair Display', serif" }[fam]);
+  const fmt = (n) => typeof n === 'string' ? n : n >= 1000 ? `${(n/1000).toFixed(1)}K` : String(n);
 
-  const user = {
-    name: 'Roger Grubb', handle: '@rogergrubb', bio: 'Building the future one automation at a time. Founder of SellFast.Now. AI enthusiast, real estate explorer, code whisperer.',
-    avatar: '🧠', banner: `linear-gradient(135deg, ${T.primary}30, ${T.accent}20, ${T.purple}20)`,
-    level: 7, trust: 94, rank: 847, hours: 142.5, hoursUsd: 28.50,
-    followers: 234, following: 89, posts: 47,
-    joinDate: 'Jan 2025', streak: 12,
+  const profile = {
+    name: 'Roger Grubb', handle: '@rogergrubb', avatar: '🚀', verified: true,
+    bio: 'Building the future of creator economies. Founder of SellFast.Now & OURS. Turning ideas into autonomous empires.',
+    banner: `linear-gradient(135deg, ${T.purple}40, ${T.primary}40, ${T.accent}40)`,
+    tier: '🔥 Creator', tierColor: T.orange,
+    hours: 2400, hoursEarned: 340, hoursThisWeek: 89,
+    followers: 1247, following: 312, posts: 47,
+    joined: 'Jan 2026',
+    links: [{ label: 'sellfast.now', url: '#' }, { label: 'github.com/rogergrubb', url: '#' }],
     badges: [
-      { icon: '🌟', name: 'Early Adopter', desc: 'Joined in first 10K users' },
-      { icon: '🛡️', name: 'Verified Human', desc: 'Passed human verification' },
-      { icon: '🔥', name: 'Hot Streak', desc: '10+ day activity streak' },
-      { icon: '📝', name: 'Creator', desc: 'Published 10+ posts' },
-      { icon: '🏛️', name: 'Citizen', desc: 'Voted on 5+ proposals' },
-      { icon: '🎬', name: 'Director', desc: 'Uploaded 5+ videos' },
+      { icon: '✍️', title: 'First Post' }, { icon: '🔥', title: '7-Day Streak' },
+      { icon: '🦋', title: 'Social Butterfly' }, { icon: '🗳️', title: 'Voter' },
     ],
   };
 
-  const contentGrid = {
-    posts: [
-      { id: 1, type: 'text', preview: 'Just discovered the HOURS earning system is way more rewarding than expected...', likes: 24, comments: 8, hours: 1.2 },
-      { id: 2, type: 'image', preview: '🌅', caption: 'Golden hour in the Bay Area', likes: 67, comments: 12, hours: 2.4 },
-      { id: 3, type: 'text', preview: 'Hot take: AI agents will replace 90% of SaaS tools within 5 years.', likes: 143, comments: 45, hours: 4.8 },
-      { id: 4, type: 'image', preview: '🤖', caption: 'My AI agent dashboard', likes: 89, comments: 23, hours: 3.1 },
-    ],
-    videos: [
-      { id: 5, title: 'Building SENTINEL in 60 Seconds', views: '2.4K', duration: '0:58', hours: 8.2 },
-      { id: 6, title: 'Real Estate Automation Deep Dive', views: '1.1K', duration: '14:32', hours: 12.5 },
-    ],
-    articles: [
-      { id: 7, title: 'Why Autonomous AI Agents Are the Next Frontier', reads: '890', readTime: '8 min', hours: 6.4 },
-      { id: 8, title: 'The Death of Manual Business Operations', reads: '1.2K', readTime: '12 min', hours: 9.1 },
-    ],
-  };
-
-  const earningHistory = [
-    { date: 'Today', amount: 4.2, source: '3 posts, 2h watching', color: T.accent },
-    { date: 'Yesterday', amount: 6.8, source: '1 article, 5 comments, voting', color: T.primary },
-    { date: 'Feb 10', amount: 3.1, source: 'Video upload, community engagement', color: T.gold },
-    { date: 'Feb 9', amount: 8.5, source: 'Article went viral — 890 reads', color: T.orange },
+  const posts = [
+    { id: 'p1', text: 'Just shipped the OURS MVP. Every zone is a world — Watch, Read, Shop, Community, Listen, Explore, Govern, Arena. Each one designed to make creators earn more. This is what the internet should feel like.', likes: 234, comments: 45, tips: 12, time: '2h ago', zone: 'Feed' },
+    { id: 'p2', text: 'Hot take: The creator economy is broken because platforms keep 50-70% of the value. OURS flips that — creators get 70%. When you build FOR creators, not ON creators, everything changes.', likes: 567, comments: 89, tips: 34, time: '1d ago', zone: 'Feed' },
+    { id: 'p3', text: 'The HOURS economy design is complete: Observer → Contributor → Creator → Builder → Architect. Each tier unlocks new powers. No buying your way up — you earn it through real contribution.', likes: 189, comments: 23, tips: 8, time: '3d ago', zone: 'Feed' },
   ];
 
-  const tabs = [
-    { id: 'posts', label: '📝 Posts', count: user.posts },
-    { id: 'videos', label: '🎬 Videos', count: contentGrid.videos.length },
-    { id: 'articles', label: '📰 Articles', count: contentGrid.articles.length },
-    { id: 'earnings', label: '💰 Earnings', count: null },
-    { id: 'badges', label: '🏅 Badges', count: user.badges.length },
+  const articles = [
+    { id: 'a1', title: 'Why I Built OURS: A Manifesto', zone: '📰 Read', reads: '12.4K', time: '1w ago' },
+    { id: 'a2', title: 'The HOURS Economy Explained', zone: '📰 Read', reads: '8.9K', time: '2w ago' },
   ];
+
+  const products = [
+    { id: 'pr1', title: 'Creator Business Blueprint', price: 29, sales: 156, zone: '🛍️ Shop', rating: 4.9 },
+  ];
+
+  const followers = [
+    { handle: '@sarahbuilds', name: 'Sarah Builds', avatar: '👩‍💻', tier: '⚡ Builder' },
+    { handle: '@devnotes', name: 'Dev Notes', avatar: '💻', tier: '🏗️ Architect' },
+    { handle: '@growthlabs', name: 'Growth Labs', avatar: '📈', tier: '🏗️ Architect' },
+    { handle: '@priyacooks', name: 'Priya Sharma', avatar: '🍳', tier: '⚡ Builder' },
+    { handle: '@alexdesigns', name: 'Alex Designs', avatar: '🎨', tier: '🏗️ Architect' },
+  ];
+
+  const globalStyles = `
+    @import url('https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;500;600;700;800;900&family=DM+Mono:wght@400;500&family=Playfair+Display:wght@700;900&display=swap');
+    * { box-sizing: border-box; margin: 0; padding: 0; } body { background: ${T.bg}; }
+    ::-webkit-scrollbar { width: 3px; } ::-webkit-scrollbar-thumb { background: rgba(255,255,255,0.06); border-radius: 4px; }
+    @keyframes slideUp { from { transform: translateY(16px); opacity: 0; } to { transform: translateY(0); opacity: 1; } }
+    button { cursor: pointer; font-family: 'Outfit', sans-serif; } button:hover:not(:disabled) { filter: brightness(1.06); }
+  `;
 
   return (
-    <div style={{ minHeight: '100vh', background: T.bg, color: T.text, paddingBottom: 80 }}>
-      <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;500;600;700;800;900&family=DM+Mono:wght@400;500&display=swap" rel="stylesheet" />
-      <style>{`* { box-sizing: border-box; margin: 0; } button:hover:not(:disabled) { filter: brightness(1.08); }`}</style>
-      <div style={{ maxWidth: 480, margin: '0 auto' }}>
+    <div style={{ minHeight: '100vh', background: T.bg, color: T.text, maxWidth: 440, margin: '0 auto' }}>
+      <style>{globalStyles}</style>
 
-        {/* Banner */}
-        <div style={{ height: 140, background: user.banner, position: 'relative' }}>
-          <button style={{ position: 'absolute', top: 12, left: 12, width: 36, height: 36, borderRadius: '50%', background: 'rgba(0,0,0,0.4)', border: 'none', color: '#fff', fontSize: 16, cursor: 'pointer', backdropFilter: 'blur(10px)' }}>←</button>
-          <button onClick={() => setEditing(!editing)} style={{ position: 'absolute', top: 12, right: 12, padding: '8px 16px', borderRadius: 10, background: 'rgba(0,0,0,0.4)', border: 'none', color: '#fff', fontSize: 11, fontWeight: 600, cursor: 'pointer', fontFamily: "'Outfit', sans-serif", backdropFilter: 'blur(10px)' }}>{editing ? 'Save' : '✏️ Edit'}</button>
-        </div>
+      {/* Banner */}
+      <div style={{ height: 120, background: profile.banner, position: 'relative' }}>
+        <button style={{ position: 'absolute', top: 10, right: 10, padding: '5px 10px', borderRadius: 8, border: `1px solid rgba(255,255,255,0.2)`, background: 'rgba(0,0,0,0.4)', fontSize: 10, fontWeight: 600, color: '#fff', fontFamily: f(), backdropFilter: 'blur(10px)' }}>⚙️</button>
+      </div>
 
-        {/* Avatar & name */}
-        <div style={{ padding: '0 20px', marginTop: -40 }}>
-          <div style={{ display: 'flex', alignItems: 'flex-end', justifyContent: 'space-between', marginBottom: 12 }}>
-            <div style={{ width: 80, height: 80, borderRadius: 20, background: `linear-gradient(135deg, ${T.primary}30, ${T.accent}30)`, border: `4px solid ${T.bg}`, display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: 40 }}>{user.avatar}</div>
-            <div style={{ display: 'flex', gap: 8 }}>
-              <button style={{ padding: '8px 16px', borderRadius: 10, background: T.card, border: `1px solid ${T.border}`, color: T.sub, fontSize: 11, fontWeight: 600, cursor: 'pointer', fontFamily: "'Outfit', sans-serif" }}>Share</button>
-              <button style={{ padding: '8px 16px', borderRadius: 10, background: `linear-gradient(135deg, ${T.primary}, ${T.accent})`, border: 'none', color: '#fff', fontSize: 11, fontWeight: 600, cursor: 'pointer', fontFamily: "'Outfit', sans-serif" }}>💬 Message</button>
-            </div>
-          </div>
-
-          <h1 style={{ fontSize: 22, fontWeight: 900, fontFamily: "'Outfit', sans-serif", margin: '0 0 2px' }}>{user.name}</h1>
-          <div style={{ display: 'flex', alignItems: 'center', gap: 8, marginBottom: 8 }}>
-            <span style={{ fontSize: 12, color: T.dim, fontFamily: "'DM Mono', monospace" }}>{user.handle}</span>
-            <span style={{ padding: '2px 8px', borderRadius: 6, background: `${T.accent}15`, color: T.accent, fontSize: 9, fontWeight: 700, fontFamily: "'DM Mono', monospace" }}>🛡️ Trust {user.trust}</span>
-            <span style={{ padding: '2px 8px', borderRadius: 6, background: `${T.primary}15`, color: T.primary, fontSize: 9, fontWeight: 700, fontFamily: "'DM Mono', monospace" }}>⭐ Lvl {user.level}</span>
-          </div>
-          <p style={{ fontSize: 13, color: T.sub, fontFamily: "'Outfit', sans-serif", lineHeight: 1.6, marginBottom: 12 }}>{user.bio}</p>
-
-          {/* Follow stats */}
-          <div style={{ display: 'flex', gap: 16, marginBottom: 16 }}>
-            {[{ label: 'Followers', value: user.followers }, { label: 'Following', value: user.following }, { label: 'Posts', value: user.posts }].map(s => (
-              <div key={s.label} style={{ cursor: 'pointer' }}>
-                <span style={{ fontSize: 15, fontWeight: 800, fontFamily: "'DM Mono', monospace" }}>{s.value}</span>
-                <span style={{ fontSize: 11, color: T.dim, fontFamily: "'Outfit', sans-serif", marginLeft: 4 }}>{s.label}</span>
-              </div>
-            ))}
-          </div>
-
-          {/* HOURS & rank card */}
-          <div style={{ display: 'flex', gap: 8, marginBottom: 16 }}>
-            <div style={{ flex: 1, padding: '14px', borderRadius: 16, background: `${T.gold}08`, border: `1px solid ${T.gold}15`, textAlign: 'center' }}>
-              <div style={{ fontSize: 8, color: T.dim, fontFamily: "'Outfit', sans-serif", letterSpacing: 1, textTransform: 'uppercase', marginBottom: 2 }}>HOURS Balance</div>
-              <div style={{ fontSize: 22, fontWeight: 900, color: T.gold, fontFamily: "'DM Mono', monospace" }}>{user.hours}</div>
-              <div style={{ fontSize: 9, color: T.dim, fontFamily: "'DM Mono', monospace" }}>≈${user.hoursUsd}*</div>
-            </div>
-            <div style={{ flex: 1, padding: '14px', borderRadius: 16, background: `${T.primary}08`, border: `1px solid ${T.primary}15`, textAlign: 'center' }}>
-              <div style={{ fontSize: 8, color: T.dim, fontFamily: "'Outfit', sans-serif", letterSpacing: 1, textTransform: 'uppercase', marginBottom: 2 }}>Global Rank</div>
-              <div style={{ fontSize: 22, fontWeight: 900, color: T.primary, fontFamily: "'DM Mono', monospace" }}>#{user.rank}</div>
-              <div style={{ fontSize: 9, color: T.dim, fontFamily: "'DM Mono', monospace" }}>🔥 {user.streak}d streak</div>
-            </div>
-            <div style={{ flex: 1, padding: '14px', borderRadius: 16, background: `${T.accent}08`, border: `1px solid ${T.accent}15`, textAlign: 'center' }}>
-              <div style={{ fontSize: 8, color: T.dim, fontFamily: "'Outfit', sans-serif", letterSpacing: 1, textTransform: 'uppercase', marginBottom: 2 }}>XP to Lvl 8</div>
-              <div style={{ fontSize: 22, fontWeight: 900, color: T.accent, fontFamily: "'DM Mono', monospace" }}>78%</div>
-              <div style={{ fontSize: 9, color: T.dim, fontFamily: "'DM Mono', monospace" }}>660 XP left</div>
-            </div>
+      {/* Profile info */}
+      <div style={{ padding: '0 16px', marginTop: -36 }}>
+        <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-end', marginBottom: 10 }}>
+          <div style={{ width: 72, height: 72, borderRadius: 20, background: T.card, border: `3px solid ${T.bg}`, display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: 36 }}>{profile.avatar}</div>
+          <div style={{ display: 'flex', gap: 6 }}>
+            <button onClick={() => setShowEdit(true)} style={{ padding: '8px 16px', borderRadius: 10, border: `1px solid ${T.border}`, background: T.surface, fontSize: 11, fontWeight: 700, color: T.text, fontFamily: f() }}>Edit Profile</button>
+            <button style={{ padding: '8px 12px', borderRadius: 10, border: `1px solid ${T.border}`, background: T.surface, fontSize: 11 }}>🔗</button>
           </div>
         </div>
 
-        {/* Content tabs */}
-        <div style={{ display: 'flex', gap: 2, padding: '0 20px', overflowX: 'auto', borderBottom: `1px solid ${T.border}`, marginBottom: 16 }}>
-          {tabs.map(t => (
-            <button key={t.id} onClick={() => setActiveTab(t.id)} style={{
-              padding: '12px 14px', cursor: 'pointer', whiteSpace: 'nowrap',
-              background: 'none', border: 'none', borderBottom: `2px solid ${activeTab === t.id ? T.primary : 'transparent'}`,
-              color: activeTab === t.id ? T.primary : T.dim, fontSize: 12, fontWeight: activeTab === t.id ? 700 : 400,
-              fontFamily: "'Outfit', sans-serif", transition: 'all 0.2s',
-            }}>
-              {t.label} {t.count !== null && <span style={{ fontSize: 10, color: T.dim, fontFamily: "'DM Mono', monospace" }}>{t.count}</span>}
-            </button>
+        <div style={{ display: 'flex', alignItems: 'center', gap: 6, marginBottom: 2 }}>
+          <span style={{ fontSize: 18, fontWeight: 900, color: T.text, fontFamily: f() }}>{profile.name}</span>
+          {profile.verified && <span style={{ fontSize: 10, color: T.primary, background: `${T.primary}15`, padding: '1px 5px', borderRadius: 4, fontWeight: 700 }}>✓</span>}
+        </div>
+        <div style={{ display: 'flex', alignItems: 'center', gap: 6, marginBottom: 6 }}>
+          <span style={{ fontSize: 12, color: T.dim, fontFamily: f('mono') }}>{profile.handle}</span>
+          <span style={{ fontSize: 9, fontWeight: 700, color: profile.tierColor, fontFamily: f('mono'), background: `${profile.tierColor}15`, padding: '1px 6px', borderRadius: 4 }}>{profile.tier}</span>
+        </div>
+        <p style={{ fontSize: 12, color: T.sub, fontFamily: f(), lineHeight: 1.5, marginBottom: 8 }}>{profile.bio}</p>
+
+        {/* Links */}
+        <div style={{ display: 'flex', gap: 8, marginBottom: 10 }}>
+          {profile.links.map(link => (
+            <span key={link.label} style={{ fontSize: 10, color: T.primary, fontFamily: f('mono') }}>🔗 {link.label}</span>
+          ))}
+          <span style={{ fontSize: 10, color: T.dim, fontFamily: f('mono') }}>📅 {profile.joined}</span>
+        </div>
+
+        {/* Stats */}
+        <div style={{ display: 'flex', gap: 12, marginBottom: 12 }}>
+          <span onClick={() => setShowFollowers('followers')} style={{ cursor: 'pointer' }}><strong style={{ color: T.text, fontFamily: f('mono'), fontSize: 13 }}>{fmt(profile.followers)}</strong> <span style={{ fontSize: 11, color: T.dim }}>followers</span></span>
+          <span onClick={() => setShowFollowers('following')} style={{ cursor: 'pointer' }}><strong style={{ color: T.text, fontFamily: f('mono'), fontSize: 13 }}>{fmt(profile.following)}</strong> <span style={{ fontSize: 11, color: T.dim }}>following</span></span>
+          <span><strong style={{ color: T.text, fontFamily: f('mono'), fontSize: 13 }}>{profile.posts}</strong> <span style={{ fontSize: 11, color: T.dim }}>posts</span></span>
+        </div>
+
+        {/* HOURS card */}
+        <div style={{ padding: 14, borderRadius: 16, background: `${T.gold}06`, border: `1px solid ${T.gold}15`, marginBottom: 12, animation: 'slideUp 0.3s ease both' }}>
+          <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+            <div>
+              <div style={{ fontSize: 10, fontWeight: 700, color: T.gold, fontFamily: f(), letterSpacing: 1 }}>HOURS BALANCE*</div>
+              <div style={{ fontSize: 24, fontWeight: 900, color: T.gold, fontFamily: f('mono') }}>⏣ {fmt(profile.hours)}</div>
+            </div>
+            <div style={{ textAlign: 'right' }}>
+              <div style={{ fontSize: 10, color: T.accent, fontFamily: f('mono') }}>+{profile.hoursThisWeek} this week</div>
+              <div style={{ fontSize: 10, color: T.dim, fontFamily: f('mono') }}>{fmt(profile.hoursEarned)} lifetime</div>
+            </div>
+          </div>
+          <div style={{ height: 4, borderRadius: 2, background: T.card, marginTop: 8, overflow: 'hidden' }}>
+            <div style={{ height: '100%', width: '48%', background: `linear-gradient(90deg, ${T.gold}, ${T.orange})`, borderRadius: 2 }} />
+          </div>
+          <div style={{ display: 'flex', justifyContent: 'space-between', marginTop: 3 }}>
+            <span style={{ fontSize: 8, color: T.dim, fontFamily: f('mono') }}>🔥 Creator</span>
+            <span style={{ fontSize: 8, color: T.dim, fontFamily: f('mono') }}>⚡ Builder: 5,000 HRS</span>
+          </div>
+        </div>
+
+        {/* Badges */}
+        <div style={{ display: 'flex', gap: 6, marginBottom: 14 }}>
+          {profile.badges.map(b => (
+            <div key={b.title} style={{ padding: '6px 8px', borderRadius: 8, background: T.surface, border: `1px solid ${T.border}`, textAlign: 'center' }}>
+              <span style={{ fontSize: 16 }}>{b.icon}</span>
+              <div style={{ fontSize: 7, color: T.dim, fontFamily: f('mono'), marginTop: 1 }}>{b.title}</div>
+            </div>
           ))}
         </div>
 
-        {/* Content area */}
-        <div style={{ padding: '0 20px' }}>
-          {activeTab === 'posts' && (
-            <div style={{ display: 'flex', flexDirection: 'column', gap: 10 }}>
-              {contentGrid.posts.map(p => (
-                <div key={p.id} style={{ padding: '14px 16px', borderRadius: 16, background: T.card, border: `1px solid ${T.border}`, cursor: 'pointer' }}>
-                  {p.type === 'image' && <div style={{ width: '100%', aspectRatio: '16/9', borderRadius: 12, background: `linear-gradient(135deg, ${T.surface}, ${T.elevated})`, display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: 40, marginBottom: 10 }}>{p.preview}</div>}
-                  <p style={{ fontSize: 13, color: T.text, fontFamily: "'Outfit', sans-serif", lineHeight: 1.5, marginBottom: 8 }}>{p.type === 'image' ? p.caption : p.preview}</p>
-                  <div style={{ display: 'flex', alignItems: 'center', gap: 12, fontSize: 10, color: T.dim }}>
-                    <span>❤️ {p.likes}</span><span>💬 {p.comments}</span>
-                    <span style={{ marginLeft: 'auto', color: T.gold, fontWeight: 700, fontFamily: "'DM Mono', monospace" }}>+{p.hours} HRS</span>
-                  </div>
-                </div>
-              ))}
-            </div>
-          )}
-
-          {activeTab === 'videos' && (
-            <div style={{ display: 'flex', flexDirection: 'column', gap: 10 }}>
-              {contentGrid.videos.map(v => (
-                <div key={v.id} style={{ display: 'flex', gap: 12, padding: 12, borderRadius: 16, background: T.card, border: `1px solid ${T.border}`, cursor: 'pointer' }}>
-                  <div style={{ width: 120, aspectRatio: '16/9', borderRadius: 12, background: `linear-gradient(135deg, ${T.surface}, ${T.elevated})`, display: 'flex', alignItems: 'center', justifyContent: 'center', position: 'relative', flexShrink: 0 }}>
-                    <span style={{ fontSize: 24, opacity: 0.4 }}>🎬</span>
-                    <div style={{ position: 'absolute', bottom: 4, right: 4, padding: '2px 6px', borderRadius: 4, background: 'rgba(0,0,0,0.6)', fontSize: 9, color: '#fff', fontFamily: "'DM Mono', monospace" }}>{v.duration}</div>
-                  </div>
-                  <div style={{ flex: 1 }}>
-                    <div style={{ fontSize: 13, fontWeight: 700, color: T.text, fontFamily: "'Outfit', sans-serif", marginBottom: 4 }}>{v.title}</div>
-                    <div style={{ fontSize: 10, color: T.dim, fontFamily: "'DM Mono', monospace" }}>{v.views} views</div>
-                    <div style={{ fontSize: 10, fontWeight: 700, color: T.gold, fontFamily: "'DM Mono', monospace", marginTop: 4 }}>+{v.hours} HRS earned</div>
-                  </div>
-                </div>
-              ))}
-            </div>
-          )}
-
-          {activeTab === 'articles' && (
-            <div style={{ display: 'flex', flexDirection: 'column', gap: 10 }}>
-              {contentGrid.articles.map(a => (
-                <div key={a.id} style={{ padding: '14px 16px', borderRadius: 16, background: T.card, border: `1px solid ${T.border}`, cursor: 'pointer' }}>
-                  <div style={{ fontSize: 15, fontWeight: 700, color: T.text, fontFamily: "'Outfit', sans-serif", marginBottom: 6 }}>{a.title}</div>
-                  <div style={{ display: 'flex', gap: 12, fontSize: 10, color: T.dim }}>
-                    <span>📖 {a.reads} reads</span><span>⏱️ {a.readTime}</span>
-                    <span style={{ marginLeft: 'auto', color: T.gold, fontWeight: 700, fontFamily: "'DM Mono', monospace" }}>+{a.hours} HRS</span>
-                  </div>
-                </div>
-              ))}
-            </div>
-          )}
-
-          {activeTab === 'earnings' && (
-            <div>
-              <div style={{ padding: '16px', borderRadius: 16, background: `${T.gold}08`, border: `1px solid ${T.gold}15`, marginBottom: 16, textAlign: 'center' }}>
-                <div style={{ fontSize: 10, color: T.dim, fontFamily: "'Outfit', sans-serif", letterSpacing: 1, textTransform: 'uppercase', marginBottom: 4 }}>Lifetime Earnings</div>
-                <div style={{ fontSize: 32, fontWeight: 900, color: T.gold, fontFamily: "'DM Mono', monospace" }}>{user.hours} HRS</div>
-                <div style={{ fontSize: 11, color: T.dim, fontFamily: "'DM Mono', monospace" }}>≈${user.hoursUsd}*</div>
-              </div>
-              <div style={{ display: 'flex', flexDirection: 'column', gap: 8 }}>
-                {earningHistory.map((e, i) => (
-                  <div key={i} style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', padding: '12px 14px', borderRadius: 14, background: T.card, border: `1px solid ${T.border}` }}>
-                    <div>
-                      <div style={{ fontSize: 12, fontWeight: 700, color: T.text, fontFamily: "'Outfit', sans-serif" }}>{e.date}</div>
-                      <div style={{ fontSize: 10, color: T.dim, fontFamily: "'Outfit', sans-serif" }}>{e.source}</div>
-                    </div>
-                    <div style={{ fontSize: 14, fontWeight: 800, color: e.color, fontFamily: "'DM Mono', monospace" }}>+{e.amount}</div>
-                  </div>
-                ))}
-              </div>
-            </div>
-          )}
-
-          {activeTab === 'badges' && (
-            <div style={{ display: 'grid', gridTemplateColumns: 'repeat(3, 1fr)', gap: 10 }}>
-              {user.badges.map((b, i) => (
-                <div key={i} style={{ padding: '16px 10px', borderRadius: 16, background: T.card, border: `1px solid ${T.border}`, textAlign: 'center', cursor: 'pointer' }}>
-                  <div style={{ fontSize: 28, marginBottom: 6 }}>{b.icon}</div>
-                  <div style={{ fontSize: 10, fontWeight: 700, color: T.text, fontFamily: "'Outfit', sans-serif", marginBottom: 2 }}>{b.name}</div>
-                  <div style={{ fontSize: 8, color: T.dim, fontFamily: "'Outfit', sans-serif", lineHeight: 1.4 }}>{b.desc}</div>
-                </div>
-              ))}
-            </div>
-          )}
+        {/* Tabs */}
+        <div style={{ display: 'flex', borderBottom: `1px solid ${T.border}`, marginBottom: 12 }}>
+          {[{ id: 'posts', label: '📝 Posts' }, { id: 'articles', label: '📰 Articles' }, { id: 'products', label: '🛍️ Shop' }, { id: 'likes', label: '❤️ Likes' }].map(tab => (
+            <button key={tab.id} onClick={() => setActiveTab(tab.id)} style={{ flex: 1, padding: '10px 0', border: 'none', background: 'none', fontFamily: f(), fontSize: 11, fontWeight: activeTab === tab.id ? 700 : 500, color: activeTab === tab.id ? T.text : T.dim, borderBottom: `2px solid ${activeTab === tab.id ? T.primary : 'transparent'}` }}>{tab.label}</button>
+          ))}
         </div>
 
-        <div style={{ padding: '16px 20px' }}>
-          <p style={{ fontSize: 8, color: T.dim, fontFamily: "'DM Mono', monospace", lineHeight: 1.6, opacity: 0.5 }}>*HOURS value estimates are illustrative. Not cryptocurrency or securities. Joined {user.joinDate}.</p>
-        </div>
+        {/* Content */}
+        {activeTab === 'posts' && posts.map((post, i) => (
+          <div key={post.id} style={{ padding: 14, borderRadius: 14, background: T.surface, border: `1px solid ${T.border}`, marginBottom: 8, animation: `slideUp 0.3s ease ${i * 0.04}s both` }}>
+            <div style={{ display: 'flex', gap: 8, marginBottom: 6 }}>
+              <div style={{ width: 32, height: 32, borderRadius: 10, background: T.card, display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: 16 }}>{profile.avatar}</div>
+              <div>
+                <span style={{ fontSize: 11, fontWeight: 700, color: T.text, fontFamily: f() }}>{profile.name}</span>
+                <span style={{ fontSize: 9, color: T.dim, fontFamily: f('mono'), marginLeft: 4 }}>{post.time}</span>
+              </div>
+            </div>
+            <p style={{ fontSize: 12, color: T.sub, fontFamily: f(), lineHeight: 1.5, marginBottom: 8 }}>{post.text}</p>
+            <div style={{ display: 'flex', gap: 14 }}>
+              <button onClick={() => setLikedPosts(p => ({ ...p, [post.id]: !p[post.id] }))} style={{ background: 'none', border: 'none', fontSize: 10, color: likedPosts[post.id] ? T.red : T.dim, fontFamily: f('mono') }}>{likedPosts[post.id] ? '❤️' : '🤍'} {post.likes + (likedPosts[post.id] ? 1 : 0)}</button>
+              <span style={{ fontSize: 10, color: T.dim, fontFamily: f('mono') }}>💬 {post.comments}</span>
+              <span style={{ fontSize: 10, color: T.gold, fontFamily: f('mono') }}>⏣ {post.tips} tips</span>
+            </div>
+          </div>
+        ))}
+
+        {activeTab === 'articles' && articles.map((a, i) => (
+          <div key={a.id} style={{ padding: 14, borderRadius: 14, background: T.surface, border: `1px solid ${T.border}`, marginBottom: 8, animation: `slideUp 0.3s ease ${i * 0.04}s both` }}>
+            <div style={{ fontSize: 14, fontWeight: 700, color: T.text, fontFamily: f() }}>{a.title}</div>
+            <div style={{ display: 'flex', gap: 8, marginTop: 4 }}>
+              <span style={{ fontSize: 9, color: T.primary, fontFamily: f('mono') }}>{a.zone}</span>
+              <span style={{ fontSize: 9, color: T.dim, fontFamily: f('mono') }}>{a.reads} reads</span>
+              <span style={{ fontSize: 9, color: T.dim, fontFamily: f('mono') }}>{a.time}</span>
+            </div>
+          </div>
+        ))}
+
+        {activeTab === 'products' && products.map((pr, i) => (
+          <div key={pr.id} style={{ padding: 14, borderRadius: 14, background: T.surface, border: `1px solid ${T.border}`, marginBottom: 8, animation: `slideUp 0.3s ease ${i * 0.04}s both` }}>
+            <div style={{ fontSize: 14, fontWeight: 700, color: T.text, fontFamily: f() }}>{pr.title}</div>
+            <div style={{ display: 'flex', gap: 8, marginTop: 4 }}>
+              <span style={{ fontSize: 11, fontWeight: 700, color: T.gold, fontFamily: f('mono') }}>⏣ {pr.price} HRS*</span>
+              <span style={{ fontSize: 9, color: T.dim, fontFamily: f('mono') }}>⭐ {pr.rating}</span>
+              <span style={{ fontSize: 9, color: T.dim, fontFamily: f('mono') }}>{pr.sales} sold</span>
+            </div>
+          </div>
+        ))}
+
+        {activeTab === 'likes' && <div style={{ textAlign: 'center', padding: 30, color: T.dim, fontSize: 12, fontFamily: f() }}>Your liked content appears here</div>}
+
+        <div style={{ textAlign: 'center', marginTop: 8, fontSize: 8, color: T.dim, fontFamily: f('mono'), paddingBottom: 60 }}>*HOURS are internal credits, not currency.</div>
       </div>
+
+      {/* Followers sheet */}
+      {showFollowers && (
+        <div style={{ position: 'fixed', inset: 0, zIndex: 90, display: 'flex', alignItems: 'flex-end', justifyContent: 'center' }}>
+          <div onClick={() => setShowFollowers(null)} style={{ position: 'absolute', inset: 0, background: 'rgba(0,0,0,0.6)' }} />
+          <div style={{ position: 'relative', width: '100%', maxWidth: 440, maxHeight: '70vh', overflowY: 'auto', background: T.surface, borderRadius: '20px 20px 0 0', border: `1px solid ${T.border}`, padding: 20, animation: 'slideUp 0.3s ease' }}>
+            <div style={{ fontSize: 14, fontWeight: 800, color: T.text, fontFamily: f(), marginBottom: 12, textTransform: 'capitalize' }}>{showFollowers}</div>
+            {followers.map(u => (
+              <div key={u.handle} style={{ display: 'flex', gap: 10, alignItems: 'center', padding: '10px 0', borderBottom: `1px solid ${T.border}` }}>
+                <div style={{ width: 36, height: 36, borderRadius: 10, background: T.card, display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: 18 }}>{u.avatar}</div>
+                <div style={{ flex: 1 }}>
+                  <div style={{ fontSize: 12, fontWeight: 600, color: T.text, fontFamily: f() }}>{u.name}</div>
+                  <div style={{ fontSize: 9, color: T.dim, fontFamily: f('mono') }}>{u.handle} · {u.tier}</div>
+                </div>
+                <button style={{ padding: '5px 12px', borderRadius: 8, border: `1px solid ${T.border}`, background: T.card, fontSize: 10, fontWeight: 600, color: T.sub, fontFamily: f() }}>Following</button>
+              </div>
+            ))}
+          </div>
+        </div>
+      )}
+
+      {/* Edit sheet */}
+      {showEdit && (
+        <div style={{ position: 'fixed', inset: 0, zIndex: 90, display: 'flex', alignItems: 'flex-end', justifyContent: 'center' }}>
+          <div onClick={() => setShowEdit(false)} style={{ position: 'absolute', inset: 0, background: 'rgba(0,0,0,0.6)' }} />
+          <div style={{ position: 'relative', width: '100%', maxWidth: 440, maxHeight: '85vh', overflowY: 'auto', background: T.surface, borderRadius: '20px 20px 0 0', border: `1px solid ${T.border}`, padding: 20, animation: 'slideUp 0.3s ease' }}>
+            <div style={{ fontSize: 16, fontWeight: 800, color: T.text, fontFamily: f(), marginBottom: 14 }}>Edit Profile</div>
+            {[{ label: 'Name', value: profile.name }, { label: 'Bio', value: profile.bio }, { label: 'Website', value: 'sellfast.now' }].map(field => (
+              <div key={field.label} style={{ marginBottom: 10 }}>
+                <label style={{ fontSize: 10, fontWeight: 600, color: T.sub, fontFamily: f(), display: 'block', marginBottom: 4 }}>{field.label}</label>
+                {field.label === 'Bio' ?
+                  <textarea defaultValue={field.value} rows={3} style={{ width: '100%', padding: 10, borderRadius: 10, border: `1px solid ${T.border}`, background: T.card, color: T.text, fontSize: 12, fontFamily: f(), outline: 'none', resize: 'none' }} /> :
+                  <input defaultValue={field.value} style={{ width: '100%', padding: 10, borderRadius: 10, border: `1px solid ${T.border}`, background: T.card, color: T.text, fontSize: 12, fontFamily: f(), outline: 'none' }} />
+                }
+              </div>
+            ))}
+            <button onClick={() => setShowEdit(false)} style={{ width: '100%', padding: 14, borderRadius: 14, border: 'none', background: T.primary, fontSize: 14, fontWeight: 700, color: '#fff', fontFamily: f() }}>Save Changes</button>
+          </div>
+        </div>
+      )}
     </div>
   );
 };
+
 export default OursProfile;

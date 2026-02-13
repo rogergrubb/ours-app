@@ -1,169 +1,271 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 
 const OursWallet = () => {
-  const [tab, setTab] = useState('overview');
+  const [activeTab, setActiveTab] = useState('overview');
   const [showSend, setShowSend] = useState(false);
+  const [showReceive, setShowReceive] = useState(false);
+  const [sendAmount, setSendAmount] = useState('');
 
-  const T = { bg: '#030712', surface: '#0a1122', card: '#0f1a2e', elevated: '#152240', border: 'rgba(56,68,100,0.22)', primary: '#0ea5e9', accent: '#10b981', gold: '#fbbf24', red: '#ef4444', purple: '#a78bfa', pink: '#f472b6', orange: '#fb923c', cyan: '#22d3ee', text: '#eaf0f9', sub: '#8b9dc3', dim: '#4a5b7a' };
+  const T = { bg: '#030712', surface: '#0a1122', card: '#0f1a2e', elevated: '#152240', border: 'rgba(56,68,100,0.18)', primary: '#0ea5e9', accent: '#10b981', gold: '#fbbf24', red: '#ef4444', purple: '#a78bfa', pink: '#f472b6', orange: '#fb923c', text: '#eaf0f9', sub: '#8b9dc3', dim: '#4a5b7a' };
+  const f = (fam = 'body') => ({ body: "'Outfit', sans-serif", mono: "'DM Mono', monospace", display: "'Playfair Display', serif" }[fam]);
+  const fmt = (n) => typeof n === 'string' ? n : n >= 1000 ? `${(n/1000).toFixed(1)}K` : String(n);
 
-  const balance = { total: 142.5, usd: 28.50, earned7d: 22.4, spent7d: 3.2, staked: 15.0 };
+  const wallet = {
+    balance: 2400.0, earned: 340.5, spent: 89.2, tipped: 45.0,
+    tier: '🔥 Creator', tierColor: T.orange, nextTier: '⚡ Builder', nextThreshold: 5000,
+    weeklyEarning: 89.3, monthlyEarning: 342.1,
+    earningBreakdown: [
+      { source: 'Content Views', amount: 142.5, pct: 42, icon: '👁️', color: T.primary },
+      { source: 'Tips Received', amount: 89.2, pct: 26, icon: '🎁', color: T.gold },
+      { source: 'Shop Sales', amount: 67.8, pct: 20, icon: '🛍️', color: T.accent },
+      { source: 'Challenges Won', amount: 24.0, pct: 7, icon: '🏆', color: T.orange },
+      { source: 'Daily Quests', amount: 18.6, pct: 5, icon: '📋', color: T.purple },
+    ],
+  };
 
   const transactions = [
-    { id: 1, type: 'earn', desc: 'Article "AI Agents" — 890 reads', amount: 6.4, time: '2h ago', icon: '📰', color: T.accent },
-    { id: 2, type: 'earn', desc: 'Video watch time — 45 min', amount: 4.2, time: '4h ago', icon: '🎬', color: T.accent },
-    { id: 3, type: 'spend', desc: 'Tipped @mayac on video', amount: -2.0, time: '5h ago', icon: '💎', color: T.red },
-    { id: 4, type: 'earn', desc: 'Community engagement — 12 posts', amount: 2.4, time: '8h ago', icon: '🏛️', color: T.accent },
-    { id: 5, type: 'earn', desc: 'Governance vote — Proposal #24', amount: 0.5, time: '1d ago', icon: '🗳️', color: T.accent },
-    { id: 6, type: 'spend', desc: 'Proposal stake #25', amount: -1.0, time: '1d ago', icon: '🔒', color: T.orange },
-    { id: 7, type: 'earn', desc: 'Quest completion — 5 quests', amount: 5.0, time: '2d ago', icon: '📋', color: T.accent },
-    { id: 8, type: 'earn', desc: 'Welcome bonus', amount: 10.0, time: '5d ago', icon: '🎁', color: T.gold },
+    { id: 't1', type: 'earned', description: 'Watch zone: 3 videos viewed', amount: '+2.4', time: '12m ago', icon: '🎬' },
+    { id: 't2', type: 'earned', description: 'Tip from @sarahbuilds', amount: '+5.0', time: '1h ago', icon: '🎁' },
+    { id: 't3', type: 'spent', description: 'Tipped @devnotes', amount: '-3.0', time: '2h ago', icon: '💸' },
+    { id: 't4', type: 'earned', description: 'Daily quest: Log in', amount: '+0.25', time: '3h ago', icon: '📋' },
+    { id: 't5', type: 'earned', description: 'Article: "Why OURS" — 234 reads', amount: '+12.4', time: '5h ago', icon: '📰' },
+    { id: 't6', type: 'spent', description: 'Purchased: Design Templates Pack', amount: '-15.0', time: '1d ago', icon: '🛍️' },
+    { id: 't7', type: 'earned', description: 'Content marathon challenge', amount: '+50.0', time: '2d ago', icon: '🏆' },
+    { id: 't8', type: 'earned', description: 'Daily quest: Watch 5 min video', amount: '+1.0', time: '2d ago', icon: '📋' },
+    { id: 't9', type: 'earned', description: 'Welcome bonus', amount: '+10.0', time: '1w ago', icon: '🎉' },
+    { id: 't10', type: 'spent', description: 'Created community: Builders Club', amount: '-10.0', time: '1w ago', icon: '🏛️' },
   ];
 
-  const earningBreakdown = [
-    { zone: 'Read', icon: '📰', amount: 45.2, pct: 32, color: T.primary },
-    { zone: 'Watch', icon: '🎬', amount: 28.1, pct: 20, color: T.red },
-    { zone: 'Community', icon: '🏛️', amount: 24.8, pct: 17, color: T.purple },
-    { zone: 'Posts', icon: '📝', amount: 18.3, pct: 13, color: T.cyan },
-    { zone: 'Quests', icon: '📋', amount: 12.0, pct: 8, color: T.gold },
-    { zone: 'Govern', icon: '🗳️', amount: 4.1, pct: 3, color: T.orange },
-    { zone: 'Other', icon: '✨', amount: 10.0, pct: 7, color: T.dim },
+  const tiers = [
+    { name: '👁️ Observer', min: 0, max: 100, color: T.dim },
+    { name: '📝 Contributor', min: 100, max: 500, color: T.sub },
+    { name: '🔥 Creator', min: 500, max: 5000, color: T.orange },
+    { name: '⚡ Builder', min: 5000, max: 25000, color: T.primary },
+    { name: '🏗️ Architect', min: 25000, max: 100000, color: T.purple },
   ];
+
+  const progressPct = ((wallet.balance - 500) / (5000 - 500)) * 100;
+
+  const globalStyles = `
+    @import url('https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;500;600;700;800;900&family=DM+Mono:wght@400;500&family=Playfair+Display:wght@700;900&display=swap');
+    * { box-sizing: border-box; margin: 0; padding: 0; } body { background: ${T.bg}; }
+    ::-webkit-scrollbar { width: 3px; } ::-webkit-scrollbar-thumb { background: rgba(255,255,255,0.06); border-radius: 4px; }
+    @keyframes slideUp { from { transform: translateY(16px); opacity: 0; } to { transform: translateY(0); opacity: 1; } }
+    @keyframes glow { 0%,100%{box-shadow:0 0 10px ${T.gold}15} 50%{box-shadow:0 0 30px ${T.gold}30} }
+    button { cursor: pointer; font-family: 'Outfit', sans-serif; } button:hover:not(:disabled) { filter: brightness(1.06); }
+  `;
 
   return (
-    <div style={{ minHeight: '100vh', background: T.bg, color: T.text, paddingBottom: 80 }}>
-      <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;500;600;700;800;900&family=DM+Mono:wght@400;500&display=swap" rel="stylesheet" />
-      <style>{`* { box-sizing: border-box; margin: 0; } button:hover:not(:disabled) { filter: brightness(1.08); }`}</style>
-      <div style={{ maxWidth: 480, margin: '0 auto' }}>
-        {/* Header */}
-        <div style={{ padding: '14px 20px', display: 'flex', alignItems: 'center', justifyContent: 'space-between', borderBottom: `1px solid ${T.border}` }}>
-          <div style={{ display: 'flex', alignItems: 'center', gap: 8 }}><span style={{ fontSize: 20 }}>💰</span><span style={{ fontSize: 18, fontWeight: 800, fontFamily: "'Outfit', sans-serif", color: T.gold }}>HOURS Wallet</span></div>
-          <button style={{ padding: '6px 12px', borderRadius: 8, background: T.card, border: `1px solid ${T.border}`, color: T.sub, fontSize: 11, cursor: 'pointer', fontFamily: "'Outfit', sans-serif" }}>⚙️</button>
+    <div style={{ minHeight: '100vh', background: T.bg, color: T.text, maxWidth: 440, margin: '0 auto' }}>
+      <style>{globalStyles}</style>
+
+      {/* Header */}
+      <div style={{ position: 'sticky', top: 0, zIndex: 50, background: `${T.bg}ee`, backdropFilter: 'blur(20px)', borderBottom: `1px solid ${T.border}` }}>
+        <div style={{ padding: '12px 16px', display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
+          <span style={{ fontSize: 20, fontWeight: 900, fontFamily: f(), background: `linear-gradient(135deg, ${T.gold}, ${T.orange})`, WebkitBackgroundClip: 'text', WebkitTextFillColor: 'transparent' }}>Wallet</span>
+          <span style={{ fontSize: 9, fontWeight: 700, color: wallet.tierColor, fontFamily: f('mono'), background: `${wallet.tierColor}15`, padding: '3px 8px', borderRadius: 6 }}>{wallet.tier}</span>
         </div>
-
-        {/* Balance hero */}
-        <div style={{ padding: '20px', background: `linear-gradient(135deg, ${T.gold}08, ${T.orange}04)` }}>
-          <div style={{ textAlign: 'center', marginBottom: 20 }}>
-            <div style={{ fontSize: 10, color: T.dim, fontFamily: "'Outfit', sans-serif", letterSpacing: 1.5, textTransform: 'uppercase', marginBottom: 4 }}>Total Balance</div>
-            <div style={{ fontSize: 48, fontWeight: 900, color: T.gold, fontFamily: "'DM Mono', monospace", textShadow: `0 0 30px ${T.gold}25` }}>{balance.total}</div>
-            <div style={{ fontSize: 14, color: T.sub, fontFamily: "'DM Mono', monospace" }}>≈ ${balance.usd.toFixed(2)} USD*</div>
-          </div>
-
-          <div style={{ display: 'flex', gap: 8, marginBottom: 16 }}>
-            <div style={{ flex: 1, padding: '10px', borderRadius: 14, background: `${T.accent}10`, border: `1px solid ${T.accent}15`, textAlign: 'center' }}>
-              <div style={{ fontSize: 8, color: T.dim, letterSpacing: 1, textTransform: 'uppercase', fontFamily: "'Outfit', sans-serif" }}>Earned 7d</div>
-              <div style={{ fontSize: 16, fontWeight: 800, color: T.accent, fontFamily: "'DM Mono', monospace" }}>+{balance.earned7d}</div>
-            </div>
-            <div style={{ flex: 1, padding: '10px', borderRadius: 14, background: `${T.red}10`, border: `1px solid ${T.red}15`, textAlign: 'center' }}>
-              <div style={{ fontSize: 8, color: T.dim, letterSpacing: 1, textTransform: 'uppercase', fontFamily: "'Outfit', sans-serif" }}>Spent 7d</div>
-              <div style={{ fontSize: 16, fontWeight: 800, color: T.red, fontFamily: "'DM Mono', monospace" }}>-{balance.spent7d}</div>
-            </div>
-            <div style={{ flex: 1, padding: '10px', borderRadius: 14, background: `${T.purple}10`, border: `1px solid ${T.purple}15`, textAlign: 'center' }}>
-              <div style={{ fontSize: 8, color: T.dim, letterSpacing: 1, textTransform: 'uppercase', fontFamily: "'Outfit', sans-serif" }}>Staked</div>
-              <div style={{ fontSize: 16, fontWeight: 800, color: T.purple, fontFamily: "'DM Mono', monospace" }}>{balance.staked}</div>
-            </div>
-          </div>
-
-          {/* Action buttons */}
-          <div style={{ display: 'flex', gap: 10 }}>
-            <button onClick={() => setShowSend(!showSend)} style={{ flex: 1, padding: '14px', borderRadius: 14, background: `linear-gradient(135deg, ${T.primary}, ${T.accent})`, border: 'none', color: '#fff', fontSize: 13, fontWeight: 700, cursor: 'pointer', fontFamily: "'Outfit', sans-serif" }}>💸 Send</button>
-            <button style={{ flex: 1, padding: '14px', borderRadius: 14, background: T.card, border: `1px solid ${T.border}`, color: T.sub, fontSize: 13, fontWeight: 700, cursor: 'pointer', fontFamily: "'Outfit', sans-serif" }}>📥 Receive</button>
-            <button style={{ flex: 1, padding: '14px', borderRadius: 14, background: `${T.gold}12`, border: `1px solid ${T.gold}20`, color: T.gold, fontSize: 13, fontWeight: 700, cursor: 'pointer', fontFamily: "'Outfit', sans-serif" }}>🏦 Redeem</button>
-          </div>
+        <div style={{ display: 'flex', padding: '0 16px', gap: 4 }}>
+          {[{ id: 'overview', label: '💰 Overview' }, { id: 'history', label: '📜 History' }, { id: 'earnings', label: '📊 Earnings' }, { id: 'tiers', label: '🏅 Tiers' }].map(tab => (
+            <button key={tab.id} onClick={() => setActiveTab(tab.id)} style={{ padding: '8px 10px', border: 'none', background: 'none', whiteSpace: 'nowrap', fontFamily: f(), fontSize: 11, fontWeight: activeTab === tab.id ? 700 : 500, color: activeTab === tab.id ? T.text : T.dim, borderBottom: `2px solid ${activeTab === tab.id ? T.gold : 'transparent'}` }}>{tab.label}</button>
+          ))}
         </div>
+      </div>
 
-        {/* Send modal */}
-        {showSend && (
-          <div style={{ padding: '16px 20px', background: `${T.primary}06`, borderBottom: `1px solid ${T.primary}15` }}>
-            <div style={{ fontSize: 12, fontWeight: 700, color: T.primary, fontFamily: "'Outfit', sans-serif", marginBottom: 8 }}>Send HOURS</div>
-            <input placeholder="@username or wallet address" style={{ width: '100%', padding: '12px 14px', borderRadius: 12, border: `1px solid ${T.border}`, background: T.surface, color: T.text, fontSize: 13, fontFamily: "'Outfit', sans-serif", outline: 'none', marginBottom: 8 }} />
-            <div style={{ display: 'flex', gap: 8 }}>
-              <input placeholder="Amount" type="number" style={{ flex: 1, padding: '12px 14px', borderRadius: 12, border: `1px solid ${T.border}`, background: T.surface, color: T.text, fontSize: 13, fontFamily: "'DM Mono', monospace", outline: 'none' }} />
-              <button style={{ padding: '12px 20px', borderRadius: 12, background: `linear-gradient(135deg, ${T.primary}, ${T.accent})`, border: 'none', color: '#fff', fontSize: 13, fontWeight: 700, cursor: 'pointer', fontFamily: "'Outfit', sans-serif" }}>Send →</button>
+      <div style={{ padding: '12px 16px', paddingBottom: 80 }}>
+        {/* OVERVIEW */}
+        {activeTab === 'overview' && (
+          <div>
+            {/* Balance card */}
+            <div style={{ padding: 20, borderRadius: 20, background: `linear-gradient(135deg, ${T.gold}12, ${T.orange}08)`, border: `1px solid ${T.gold}20`, marginBottom: 14, textAlign: 'center', animation: 'glow 4s ease infinite, slideUp 0.3s ease both' }}>
+              <div style={{ fontSize: 10, color: T.dim, fontFamily: f('mono'), letterSpacing: 2, marginBottom: 4 }}>TOTAL BALANCE*</div>
+              <div style={{ fontSize: 42, fontWeight: 900, color: T.gold, fontFamily: f('mono'), lineHeight: 1 }}>⏣ {wallet.balance.toFixed(1)}</div>
+              <div style={{ fontSize: 11, color: T.sub, fontFamily: f(), marginTop: 6 }}>
+                <span style={{ color: T.accent }}>+{wallet.weeklyEarning}</span> this week
+              </div>
+            </div>
+
+            {/* Actions */}
+            <div style={{ display: 'flex', gap: 8, marginBottom: 14 }}>
+              <button onClick={() => setShowSend(true)} style={{ flex: 1, padding: 14, borderRadius: 14, border: 'none', background: T.primary, textAlign: 'center' }}>
+                <div style={{ fontSize: 18, marginBottom: 2 }}>↗</div>
+                <div style={{ fontSize: 11, fontWeight: 700, color: '#fff', fontFamily: f() }}>Send</div>
+              </button>
+              <button onClick={() => setShowReceive(true)} style={{ flex: 1, padding: 14, borderRadius: 14, border: `1px solid ${T.border}`, background: T.surface, textAlign: 'center' }}>
+                <div style={{ fontSize: 18, marginBottom: 2 }}>↙</div>
+                <div style={{ fontSize: 11, fontWeight: 700, color: T.text, fontFamily: f() }}>Receive</div>
+              </button>
+              <button style={{ flex: 1, padding: 14, borderRadius: 14, border: `1px solid ${T.border}`, background: T.surface, textAlign: 'center' }}>
+                <div style={{ fontSize: 18, marginBottom: 2 }}>📊</div>
+                <div style={{ fontSize: 11, fontWeight: 700, color: T.text, fontFamily: f() }}>Stats</div>
+              </button>
+            </div>
+
+            {/* Quick stats */}
+            <div style={{ display: 'flex', gap: 6, marginBottom: 14 }}>
+              {[{ l: 'Earned', v: wallet.earned, c: T.accent, prefix: '+' }, { l: 'Spent', v: wallet.spent, c: T.red, prefix: '-' }, { l: 'Tipped', v: wallet.tipped, c: T.gold, prefix: '' }].map(s => (
+                <div key={s.l} style={{ flex: 1, padding: 10, borderRadius: 12, background: T.surface, border: `1px solid ${T.border}`, textAlign: 'center' }}>
+                  <div style={{ fontSize: 16, fontWeight: 800, color: s.c, fontFamily: f('mono') }}>{s.prefix}{s.v}</div>
+                  <div style={{ fontSize: 9, color: T.dim, fontFamily: f() }}>{s.l}</div>
+                </div>
+              ))}
+            </div>
+
+            {/* Tier progress */}
+            <div style={{ padding: 14, borderRadius: 14, background: T.surface, border: `1px solid ${T.border}`, marginBottom: 14 }}>
+              <div style={{ display: 'flex', justifyContent: 'space-between', marginBottom: 6 }}>
+                <span style={{ fontSize: 11, fontWeight: 700, color: wallet.tierColor, fontFamily: f() }}>{wallet.tier}</span>
+                <span style={{ fontSize: 11, color: T.dim, fontFamily: f('mono') }}>{wallet.nextTier}: {fmt(wallet.nextThreshold)} HRS</span>
+              </div>
+              <div style={{ height: 8, borderRadius: 4, background: T.card, overflow: 'hidden' }}>
+                <div style={{ height: '100%', width: `${Math.min(progressPct, 100)}%`, background: `linear-gradient(90deg, ${wallet.tierColor}, ${T.gold})`, borderRadius: 4, transition: 'width 1s ease' }} />
+              </div>
+              <div style={{ fontSize: 9, color: T.dim, fontFamily: f('mono'), marginTop: 4 }}>{(wallet.nextThreshold - wallet.balance).toFixed(0)} HRS to next tier</div>
+            </div>
+
+            {/* Recent transactions preview */}
+            <div>
+              <div style={{ display: 'flex', justifyContent: 'space-between', marginBottom: 6 }}>
+                <span style={{ fontSize: 11, fontWeight: 700, color: T.sub, fontFamily: f(), letterSpacing: 1 }}>RECENT</span>
+                <button onClick={() => setActiveTab('history')} style={{ background: 'none', border: 'none', fontSize: 10, color: T.primary, fontFamily: f() }}>See all →</button>
+              </div>
+              {transactions.slice(0, 4).map((tx, i) => (
+                <div key={tx.id} style={{ display: 'flex', gap: 10, alignItems: 'center', padding: '10px 0', borderBottom: `1px solid ${T.border}`, animation: `slideUp 0.3s ease ${i * 0.04}s both` }}>
+                  <div style={{ width: 36, height: 36, borderRadius: 10, background: tx.type === 'earned' ? `${T.accent}10` : `${T.red}10`, display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: 16 }}>{tx.icon}</div>
+                  <div style={{ flex: 1 }}>
+                    <div style={{ fontSize: 11, fontWeight: 600, color: T.text, fontFamily: f() }}>{tx.description}</div>
+                    <div style={{ fontSize: 9, color: T.dim, fontFamily: f('mono') }}>{tx.time}</div>
+                  </div>
+                  <span style={{ fontSize: 12, fontWeight: 700, color: tx.type === 'earned' ? T.accent : T.red, fontFamily: f('mono') }}>{tx.amount}*</span>
+                </div>
+              ))}
             </div>
           </div>
         )}
 
-        {/* Tabs */}
-        <div style={{ display: 'flex', gap: 4, padding: '12px 20px', borderBottom: `1px solid ${T.border}` }}>
-          {[{ id: 'overview', l: '📊 Overview' }, { id: 'history', l: '📜 History' }, { id: 'breakdown', l: '📈 Breakdown' }].map(t => (
-            <button key={t.id} onClick={() => setTab(t.id)} style={{ padding: '8px 14px', borderRadius: 10, cursor: 'pointer', background: tab === t.id ? `${T.gold}15` : 'transparent', border: `1px solid ${tab === t.id ? T.gold + '30' : 'transparent'}`, color: tab === t.id ? T.gold : T.dim, fontSize: 12, fontWeight: tab === t.id ? 700 : 400, fontFamily: "'Outfit', sans-serif" }}>{t.l}</button>
-          ))}
-        </div>
+        {/* HISTORY */}
+        {activeTab === 'history' && (
+          <div>
+            <div style={{ display: 'flex', gap: 6, marginBottom: 12 }}>
+              {['All', 'Earned', 'Spent'].map(fil => (
+                <button key={fil} style={{ padding: '6px 14px', borderRadius: 8, border: `1px solid ${fil === 'All' ? T.gold : T.border}`, background: fil === 'All' ? `${T.gold}10` : T.surface, fontSize: 10, fontWeight: 600, color: fil === 'All' ? T.gold : T.sub, fontFamily: f() }}>{fil}</button>
+              ))}
+            </div>
+            {transactions.map((tx, i) => (
+              <div key={tx.id} style={{ display: 'flex', gap: 10, alignItems: 'center', padding: '10px 0', borderBottom: `1px solid ${T.border}`, animation: `slideUp 0.3s ease ${i * 0.03}s both` }}>
+                <div style={{ width: 36, height: 36, borderRadius: 10, background: tx.type === 'earned' ? `${T.accent}10` : `${T.red}10`, display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: 16 }}>{tx.icon}</div>
+                <div style={{ flex: 1 }}>
+                  <div style={{ fontSize: 11, fontWeight: 600, color: T.text, fontFamily: f() }}>{tx.description}</div>
+                  <div style={{ fontSize: 9, color: T.dim, fontFamily: f('mono') }}>{tx.time}</div>
+                </div>
+                <span style={{ fontSize: 12, fontWeight: 700, color: tx.type === 'earned' ? T.accent : T.red, fontFamily: f('mono') }}>{tx.amount}*</span>
+              </div>
+            ))}
+          </div>
+        )}
 
-        <div style={{ padding: '16px 20px' }}>
-          {/* History */}
-          {(tab === 'overview' || tab === 'history') && (
-            <div>
-              {tab === 'overview' && <div style={{ fontSize: 14, fontWeight: 700, fontFamily: "'Outfit', sans-serif", marginBottom: 12 }}>Recent Activity</div>}
-              <div style={{ display: 'flex', flexDirection: 'column', gap: 6 }}>
-                {(tab === 'overview' ? transactions.slice(0, 5) : transactions).map(tx => (
-                  <div key={tx.id} style={{ display: 'flex', alignItems: 'center', gap: 12, padding: '12px 14px', borderRadius: 14, background: T.card, border: `1px solid ${T.border}` }}>
-                    <div style={{ width: 36, height: 36, borderRadius: 10, background: `${tx.color}10`, display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: 16, flexShrink: 0 }}>{tx.icon}</div>
-                    <div style={{ flex: 1, minWidth: 0 }}>
-                      <div style={{ fontSize: 12, fontWeight: 600, color: T.text, fontFamily: "'Outfit', sans-serif", overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>{tx.desc}</div>
-                      <div style={{ fontSize: 10, color: T.dim, fontFamily: "'DM Mono', monospace" }}>{tx.time}</div>
-                    </div>
-                    <div style={{ fontSize: 14, fontWeight: 800, color: tx.amount > 0 ? T.accent : T.red, fontFamily: "'DM Mono', monospace", flexShrink: 0 }}>
-                      {tx.amount > 0 ? '+' : ''}{tx.amount}
-                    </div>
-                  </div>
-                ))}
+        {/* EARNINGS */}
+        {activeTab === 'earnings' && (
+          <div>
+            <div style={{ display: 'flex', gap: 6, marginBottom: 14 }}>
+              <div style={{ flex: 1, padding: 12, borderRadius: 14, background: `${T.accent}08`, border: `1px solid ${T.accent}20`, textAlign: 'center' }}>
+                <div style={{ fontSize: 20, fontWeight: 900, color: T.accent, fontFamily: f('mono') }}>+{wallet.weeklyEarning}</div>
+                <div style={{ fontSize: 9, color: T.dim, fontFamily: f() }}>This Week</div>
+              </div>
+              <div style={{ flex: 1, padding: 12, borderRadius: 14, background: `${T.primary}08`, border: `1px solid ${T.primary}20`, textAlign: 'center' }}>
+                <div style={{ fontSize: 20, fontWeight: 900, color: T.primary, fontFamily: f('mono') }}>+{wallet.monthlyEarning}</div>
+                <div style={{ fontSize: 9, color: T.dim, fontFamily: f() }}>This Month</div>
               </div>
             </div>
-          )}
-
-          {/* Breakdown */}
-          {tab === 'breakdown' && (
-            <div>
-              <div style={{ fontSize: 14, fontWeight: 700, fontFamily: "'Outfit', sans-serif", marginBottom: 16 }}>Earning Sources</div>
-              <div style={{ display: 'flex', flexDirection: 'column', gap: 10 }}>
-                {earningBreakdown.map((e, i) => (
-                  <div key={i}>
-                    <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: 4 }}>
-                      <div style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
-                        <span style={{ fontSize: 16 }}>{e.icon}</span>
-                        <span style={{ fontSize: 12, fontWeight: 600, color: T.text, fontFamily: "'Outfit', sans-serif" }}>{e.zone}</span>
-                      </div>
-                      <div style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
-                        <span style={{ fontSize: 12, fontWeight: 700, color: e.color, fontFamily: "'DM Mono', monospace" }}>{e.amount}</span>
-                        <span style={{ fontSize: 10, color: T.dim, fontFamily: "'DM Mono', monospace" }}>{e.pct}%</span>
-                      </div>
-                    </div>
-                    <div style={{ height: 6, borderRadius: 3, background: T.card }}>
-                      <div style={{ height: '100%', borderRadius: 3, width: `${e.pct}%`, background: e.color, transition: 'width 0.5s' }} />
-                    </div>
-                  </div>
-                ))}
+            <span style={{ fontSize: 11, fontWeight: 700, color: T.sub, fontFamily: f(), letterSpacing: 1, display: 'block', marginBottom: 8 }}>EARNINGS BY SOURCE</span>
+            {wallet.earningBreakdown.map((src, i) => (
+              <div key={src.source} style={{ marginBottom: 10, animation: `slideUp 0.3s ease ${i * 0.05}s both` }}>
+                <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 4 }}>
+                  <span style={{ fontSize: 11, color: T.text, fontFamily: f() }}>{src.icon} {src.source}</span>
+                  <span style={{ fontSize: 11, fontWeight: 700, color: src.color, fontFamily: f('mono') }}>+{src.amount} HRS ({src.pct}%)*</span>
+                </div>
+                <div style={{ height: 6, borderRadius: 3, background: T.card, overflow: 'hidden' }}>
+                  <div style={{ height: '100%', width: `${src.pct}%`, background: src.color, borderRadius: 3 }} />
+                </div>
               </div>
-
-              {/* Redeem options */}
-              <div style={{ marginTop: 24, fontSize: 14, fontWeight: 700, fontFamily: "'Outfit', sans-serif", marginBottom: 12 }}>Redeem Options</div>
-              <div style={{ display: 'flex', flexDirection: 'column', gap: 8 }}>
-                {[
-                  { icon: '🏦', title: 'Cash Out', desc: 'Convert to USD (min 100 HOURS)', status: '87.5 more needed' },
-                  { icon: '🛍️', title: 'Shop Credits', desc: 'Use HOURS in the Shop zone', status: 'Available now' },
-                  { icon: '💎', title: 'Tip Creators', desc: 'Send HOURS to support creators', status: 'Available now' },
-                  { icon: '🗳️', title: 'Governance Stake', desc: 'Stake to submit proposals', status: 'Available now' },
-                ].map((opt, i) => (
-                  <div key={i} style={{ display: 'flex', gap: 12, padding: '12px 14px', borderRadius: 14, background: T.card, border: `1px solid ${T.border}`, cursor: 'pointer' }}>
-                    <div style={{ width: 36, height: 36, borderRadius: 10, background: `${T.gold}10`, display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: 16, flexShrink: 0 }}>{opt.icon}</div>
-                    <div style={{ flex: 1 }}>
-                      <div style={{ fontSize: 12, fontWeight: 700, color: T.text, fontFamily: "'Outfit', sans-serif" }}>{opt.title}</div>
-                      <div style={{ fontSize: 10, color: T.dim, fontFamily: "'Outfit', sans-serif" }}>{opt.desc}</div>
-                    </div>
-                    <span style={{ fontSize: 9, color: i === 0 ? T.orange : T.accent, fontFamily: "'DM Mono', monospace", alignSelf: 'center' }}>{opt.status}</span>
-                  </div>
-                ))}
-              </div>
+            ))}
+            <div style={{ padding: 12, borderRadius: 12, background: `${T.gold}06`, border: `1px solid ${T.gold}15`, marginTop: 12, textAlign: 'center' }}>
+              <div style={{ fontSize: 10, color: T.dim, fontFamily: f('mono') }}>REVENUE SHARE</div>
+              <div style={{ fontSize: 24, fontWeight: 900, color: T.gold, fontFamily: f('mono') }}>70%</div>
+              <div style={{ fontSize: 10, color: T.sub, fontFamily: f() }}>Creators get 70% of platform revenue*</div>
             </div>
-          )}
-        </div>
+          </div>
+        )}
 
-        <div style={{ padding: '0 20px 20px' }}>
-          <p style={{ fontSize: 8, color: T.dim, fontFamily: "'DM Mono', monospace", lineHeight: 1.6, opacity: 0.5 }}>*HOURS are platform credits. Estimated USD value depends on revenue. Min 100 HOURS to redeem. Not cryptocurrency or securities. Redemption subject to Terms of Service.</p>
-        </div>
+        {/* TIERS */}
+        {activeTab === 'tiers' && (
+          <div>
+            <div style={{ textAlign: 'center', marginBottom: 14, padding: 14, borderRadius: 16, background: `${wallet.tierColor}08`, border: `1px solid ${wallet.tierColor}20` }}>
+              <div style={{ fontSize: 28 }}>🔥</div>
+              <div style={{ fontSize: 18, fontWeight: 900, color: wallet.tierColor, fontFamily: f() }}>Creator</div>
+              <div style={{ fontSize: 11, color: T.sub, fontFamily: f() }}>Your current tier</div>
+              <div style={{ fontSize: 12, fontWeight: 700, color: T.gold, fontFamily: f('mono'), marginTop: 4 }}>⏣ {wallet.balance.toFixed(1)} / {fmt(wallet.nextThreshold)}*</div>
+            </div>
+            {tiers.map((tier, i) => {
+              const isCurrent = tier.name.includes('Creator');
+              const isPast = wallet.balance >= tier.max;
+              return (
+                <div key={tier.name} style={{ display: 'flex', gap: 10, alignItems: 'center', padding: 12, borderRadius: 12, background: isCurrent ? `${tier.color}08` : T.surface, border: `1px solid ${isCurrent ? `${tier.color}25` : T.border}`, marginBottom: 6, opacity: isPast && !isCurrent ? 0.5 : 1, animation: `slideUp 0.3s ease ${i * 0.05}s both` }}>
+                  <div style={{ width: 36, textAlign: 'center' }}>
+                    <span style={{ fontSize: 18 }}>{tier.name.split(' ')[0]}</span>
+                  </div>
+                  <div style={{ flex: 1 }}>
+                    <div style={{ fontSize: 12, fontWeight: 700, color: isCurrent ? tier.color : T.text, fontFamily: f() }}>{tier.name.split(' ').slice(1).join(' ')}</div>
+                    <div style={{ fontSize: 9, color: T.dim, fontFamily: f('mono') }}>{fmt(tier.min)} – {fmt(tier.max)} HOURS</div>
+                  </div>
+                  {isCurrent && <span style={{ fontSize: 9, fontWeight: 700, color: tier.color, fontFamily: f('mono'), background: `${tier.color}15`, padding: '2px 8px', borderRadius: 4 }}>CURRENT</span>}
+                  {isPast && !isCurrent && <span style={{ fontSize: 9, color: T.accent, fontFamily: f('mono') }}>✓</span>}
+                </div>
+              );
+            })}
+          </div>
+        )}
+
+        <div style={{ textAlign: 'center', marginTop: 12, fontSize: 8, color: T.dim, fontFamily: f('mono') }}>*HOURS are internal platform credits, not currency. Values illustrative.</div>
       </div>
+
+      {/* Send sheet */}
+      {showSend && (
+        <div style={{ position: 'fixed', inset: 0, zIndex: 90, display: 'flex', alignItems: 'flex-end', justifyContent: 'center' }}>
+          <div onClick={() => setShowSend(false)} style={{ position: 'absolute', inset: 0, background: 'rgba(0,0,0,0.6)' }} />
+          <div style={{ position: 'relative', width: '100%', maxWidth: 440, background: T.surface, borderRadius: '20px 20px 0 0', border: `1px solid ${T.border}`, padding: 20, animation: 'slideUp 0.3s ease' }}>
+            <div style={{ fontSize: 16, fontWeight: 800, color: T.text, fontFamily: f(), marginBottom: 12 }}>Send HOURS*</div>
+            <input placeholder="@username" style={{ width: '100%', padding: 12, borderRadius: 12, border: `1px solid ${T.border}`, background: T.card, color: T.text, fontSize: 13, fontFamily: f(), outline: 'none', marginBottom: 8 }} />
+            <input value={sendAmount} onChange={e => setSendAmount(e.target.value)} placeholder="Amount" type="number" style={{ width: '100%', padding: 12, borderRadius: 12, border: `1px solid ${T.border}`, background: T.card, color: T.text, fontSize: 13, fontFamily: f('mono'), outline: 'none', marginBottom: 8 }} />
+            <div style={{ display: 'flex', gap: 6, marginBottom: 12 }}>
+              {[5, 10, 25, 50, 100].map(a => (
+                <button key={a} onClick={() => setSendAmount(String(a))} style={{ flex: 1, padding: '8px 0', borderRadius: 8, border: `1px solid ${T.gold}25`, background: `${T.gold}06`, fontSize: 10, fontWeight: 700, color: T.gold, fontFamily: f('mono') }}>{a}</button>
+              ))}
+            </div>
+            <button onClick={() => setShowSend(false)} style={{ width: '100%', padding: 14, borderRadius: 14, border: 'none', background: T.primary, fontSize: 14, fontWeight: 700, color: '#fff', fontFamily: f() }}>Send ⏣ {sendAmount || '0'} HOURS</button>
+            <div style={{ textAlign: 'center', marginTop: 6, fontSize: 8, color: T.dim, fontFamily: f('mono') }}>*HOURS are internal credits, not currency.</div>
+          </div>
+        </div>
+      )}
+
+      {/* Receive sheet */}
+      {showReceive && (
+        <div style={{ position: 'fixed', inset: 0, zIndex: 90, display: 'flex', alignItems: 'flex-end', justifyContent: 'center' }}>
+          <div onClick={() => setShowReceive(false)} style={{ position: 'absolute', inset: 0, background: 'rgba(0,0,0,0.6)' }} />
+          <div style={{ position: 'relative', width: '100%', maxWidth: 440, background: T.surface, borderRadius: '20px 20px 0 0', border: `1px solid ${T.border}`, padding: 20, textAlign: 'center', animation: 'slideUp 0.3s ease' }}>
+            <div style={{ fontSize: 16, fontWeight: 800, color: T.text, fontFamily: f(), marginBottom: 4 }}>Receive HOURS*</div>
+            <div style={{ fontSize: 10, color: T.dim, fontFamily: f('mono'), marginBottom: 12 }}>Share your handle to receive tips</div>
+            <div style={{ padding: 20, borderRadius: 16, background: T.card, border: `1px solid ${T.border}`, marginBottom: 12 }}>
+              <div style={{ width: 80, height: 80, borderRadius: 20, background: `${T.gold}10`, display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: 40, margin: '0 auto 8px' }}>🚀</div>
+              <div style={{ fontSize: 16, fontWeight: 800, color: T.text, fontFamily: f('mono') }}>@rogergrubb</div>
+            </div>
+            <button onClick={() => setShowReceive(false)} style={{ width: '100%', padding: 14, borderRadius: 14, border: 'none', background: T.gold, fontSize: 14, fontWeight: 700, color: T.bg, fontFamily: f() }}>Copy Handle</button>
+            <div style={{ marginTop: 6, fontSize: 8, color: T.dim, fontFamily: f('mono') }}>*HOURS are internal credits, not currency.</div>
+          </div>
+        </div>
+      )}
     </div>
   );
 };
+
 export default OursWallet;
